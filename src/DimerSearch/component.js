@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
 */
 
-export default {
+export const DimerSearch = {
   props: {
     model: {
       required: true,

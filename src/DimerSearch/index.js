@@ -7,16 +7,8 @@
  * file that was distributed with this source code.
 */
 
-import { DimerTree } from './component'
+import { DimerSearch } from './component'
 
-/**
- * Dimer plugin to attach a new component
- *
- * @param  {Object} dimer
- * @param  {Object} vue
- *
- * @return {void}
- */
 export default function (dimer, vue) {
-  vue.component('DimerTree', DimerTree(dimer.getRenderers()))
+  vue.component('DimerSearch', DimerSearch)
 }

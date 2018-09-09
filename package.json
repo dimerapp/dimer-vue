@@ -1,8 +1,10 @@
 {
-  "name": "dimer-vue-new",
+  "name": "dimer-vue",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Components and helpers to build user documentation websites using Dimer and Vue",
+  "main": "dist/dimer-vue.js",
+  "module": "dist/dimer-vue.cjs.js",
+  "unpkg": "dist/dimer-vue.min.js",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "rm -rf test && npm run lint",
@@ -10,13 +12,13 @@
     "lint": "standard",
     "test": "bili tests/index -o test --filename test.spec.js && japa",
     "posttest": "rm -r test",
-    "build": "bili src/main.js --format cjs,umd,umd-min",
+    "build": "bili src/main.js",
     "build:example": "bili example/app.js -o example-output --filename output.js --format umd",
     "watch:example": "watch 'npm run build:example' src example"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "virk",
+  "license": "MIT",
   "devDependencies": {
     "@adonisjs/mrm-preset": "^1.0.11",
     "@dimerapp/markdown": "^3.1.1",
@@ -53,6 +55,21 @@
     ]
   },
   "standard": {
-    "ignore": ["example", "example-output"]
-  }
+    "ignore": [
+      "example",
+      "example-output"
+    ]
+  },
+  "directories": {
+    "example": "example",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimerapp/dimer-vue.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dimerapp/dimer-vue/issues"
+  },
+  "homepage": "https://github.com/dimerapp/dimer-vue#readme"
 }
