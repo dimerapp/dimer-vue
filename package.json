@@ -7,11 +7,12 @@
   "unpkg": "dist/dimer-vue.min.js",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
-    "pretest": "rm -rf test && npm run lint",
     "commit": "git-cz",
     "lint": "standard",
-    "test": "bili tests/index -o test --filename test.spec.js && japa",
-    "posttest": "rm -r test",
+    "pretest": "del-cli test && npm run lint",
+    "test": "bili tests/index -c bili.config-test.js && japa",
+    "posttest": "del-cli test",
+    "prebuild": "del-cli dist",
     "build": "bili src/main.js",
     "build:example": "bili example/app.js -o example-output --filename output.js --format umd",
     "watch:example": "watch 'npm run build:example' src example"
@@ -29,6 +30,7 @@
     "commitizen": "^2.10.1",
     "cz-conventional-changelog": "^2.1.0",
     "dedent": "^0.7.0",
+    "del-cli": "^1.1.0",
     "japa": "^1.0.6",
     "japa-cli": "^1.0.1",
     "mrm": "^1.2.1",
