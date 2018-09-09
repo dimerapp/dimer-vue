@@ -5,9 +5,7 @@
   "main": "dist/dimer-vue.js",
   "module": "dist/dimer-vue.cjs.js",
   "unpkg": "dist/dimer-vue.min.js",
-  "files": {
-    "dist"
-  },
+  "files": ["dist"],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "commit": "git-cz",
