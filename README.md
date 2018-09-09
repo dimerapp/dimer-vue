@@ -20,6 +20,12 @@
 
 This repo helps you to build the UI using the API exposed by your Dimer project. 
 
+| file                   | size     | gzip size |
+|------------------------|----------|-----------|
+| CJS                    | 26.19 KB  | 6.19 KB  |
+| UMD                    | 28.27 KB  | 6.31 KB  |
+| UMD MIN                | 9.08 KB   | 2.98 KB  |
+
 The goal of the project is to make it easier to create custom designs for your documentation, without re-creating the core 
 elements or components.
 
