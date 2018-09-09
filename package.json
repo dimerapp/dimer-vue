@@ -1,0 +1,58 @@
+{
+  "name": "dimer-vue-new",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "mrm": "mrm --preset=@adonisjs/mrm-preset",
+    "pretest": "rm -rf test && npm run lint",
+    "commit": "git-cz",
+    "lint": "standard",
+    "test": "bili tests/index -o test --filename test.spec.js && japa",
+    "posttest": "rm -r test",
+    "build": "bili src/main.js --format cjs,umd,umd-min",
+    "build:example": "bili example/app.js -o example-output --filename output.js --format umd",
+    "watch:example": "watch 'npm run build:example' src example"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@adonisjs/mrm-preset": "^1.0.11",
+    "@dimerapp/markdown": "^3.1.1",
+    "@vue/server-test-utils": "^1.0.0-beta.24",
+    "@vue/test-utils": "^1.0.0-beta.24",
+    "axios-mock-adapter": "^1.15.0",
+    "bili": "^3.1.2",
+    "commitizen": "^2.10.1",
+    "cz-conventional-changelog": "^2.1.0",
+    "dedent": "^0.7.0",
+    "japa": "^1.0.6",
+    "japa-cli": "^1.0.1",
+    "mrm": "^1.2.1",
+    "pkg-ok": "^2.2.0",
+    "standard": "^12.0.1",
+    "vue": "^2.5.17",
+    "vue-router": "^3.0.1",
+    "vue-server-renderer": "^2.5.17",
+    "vue-template-compiler": "^2.5.17",
+    "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "axios": "^0.18.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "nyc": {
+    "exclude": [
+      "test",
+      "japaFile.js"
+    ]
+  },
+  "standard": {
+    "ignore": ["example", "example-output"]
+  }
+}
