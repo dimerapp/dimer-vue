@@ -20,7 +20,7 @@
 
 This repo helps you to build the UI using the API exposed by your Dimer project. 
 
-The goal of the project is to make it easier to make custom designs for your documentation, without re-creating the core 
+The goal of the project is to make it easier to create custom designs for your documentation, without re-creating the core 
 elements or components.
 
 Following is the list of included components and API's:
@@ -67,7 +67,7 @@ Vue.use(Dimer)
 ## SDK
 The job of the SDK is to make REST calls to the Dimer API server. It hides the complexity of manually creating HTTP requests and instead provides a clean API to fetch and use data.
 
-At bare minimum, you need to register the `DimerApi` plugin with the `Dimer` object as shown below.
+At a bare minimum, you need to register the `DimerApi` plugin with the `Dimer` object as shown below.
 
 ```js
 import { Dimer, DimerApi } from 'dimer-vue'
@@ -81,10 +81,10 @@ Dimer.use(DimerApi, {
 **Once done, you can access `this.Dimer` from your Vue.js components.**
 
 - The `baseUrl` is the URL for your API server.
-- The `docUrlPattern` is the URL pattern you will define with Vue router or Nuxt router. You have to tell this to Dimer also, so that it can make internal links properly for you.
+- The `docUrlPattern` is the URL pattern you will define with Vue router or Nuxt router. You have to tell this to Dimer also so that it can make internal links properly for you.
 
 #### load
-The `load` function must be called, when you boot your VueJs or Nuxt app. It will hit the Dimer servers and pre-fetches all `zones` and `versions` for you.
+The `load` function must be called when you boot your VueJs or Nuxt app. It will hit the Dimer servers and pre-fetches all `zones` and `versions` for you.
 
 Multiple calls to the `load` method are ignored. So we suggest using the Nuxt middleware to call the load function.
 
@@ -97,7 +97,7 @@ export default async function ({ app, isServer }) {
 ```
 
 #### zone(slug)
-Get instance of a zone for a given slug. If your app is not making use of zones, you can make use of `defaultZone` method.
+Get an instance of a zone for a given slug. If your app is not making use of zones, you can make use of `defaultZone` method.
 
 ```js
 // Get zone slug from URL
@@ -119,7 +119,7 @@ zone.getVersions()
 
 
 #### version(no)
-Get instance of a given version inside a zone. Again if your app uses only single version, then you can call the `defaultVersion` method.
+Get an instance of a given version inside a zone. Again if your app uses only a single version, then you can call the `defaultVersion` method.
 
 ```js
 const version = this.Dimer
@@ -145,7 +145,7 @@ await version.getTree()
 ```
 
 #### getDoc(permalink)
-Get contents for a `doc` with it's permalink and for a given version.
+Get contents for a `doc` with its permalink and for a given version.
 
 ```js
 const version = this.Dimer
@@ -188,7 +188,7 @@ created () {
 ```
 
 ## Dimer Tree
-The `DimerTree` component is the bare minimum you need in order to render markdown JSON AST as Vue elements.
+The `DimerTree` component is the bare minimum you need to render markdown JSON AST as Vue elements.
 
 ```js
 import { Dimer, DimerTree } from 'dimer-vue'
@@ -206,9 +206,9 @@ Now, you can use it as follows.
 </template>
 ```
 
-The great part about the Dimer Tree component is that you can define your own `renderers` for certain elements.
+The significant part about the Dimer Tree component is that you can define your own `renderers` for specific elements.
 
-For example: You want to add a class to each `h2` in your documentation.
+For example, You want to add a class to each `h2` in your documentation.
 
 ```js
 import { utils } from 'dimer-vue'
@@ -244,7 +244,7 @@ Dimer.addRenderer(function (node, rerender, createElement) {
 
 The `DimerSearch` component gives you the bare bones to implement the search functionality in your Vue.js apps. 
 
-The component doesn't create any markup and neither provides any styling. We encourage theme creators to do that.
+The component doesn't create any markup, and neither provides any styling. We encourage theme creators to do that.
 
 ```js
 import { Dimer, DimerSearch } from 'dimer-vue'
@@ -304,7 +304,7 @@ The search component listens for `up` and `down` arrows and updates the `activeI
 </li>
 ```
 
-If you want, you can define your own custom listeners for `arrowUp` and `arrowDown`. In that case, the default functionality is removed.
+If you want, you can define your custom listeners for `arrowUp` and `arrowDown`. In that case, the default functionality is removed.
 
 #### @onArrowUp
 ```vue
@@ -319,7 +319,7 @@ If you want, you can define your own custom listeners for `arrowUp` and `arrowDo
 ```
 
 ### Using Enter to visit the selected doc
-Now since, users can use their keyboard to navigate through the list of search results, we can also let them `Press Enter` to select a search result.
+Now since users can use their keyboard to navigate through the list of search results, we can also let them `Press Enter` to select a search result.
 
 #### @onEnter
 ```vue
@@ -346,14 +346,14 @@ export default {
 ```
 
 ### Hiding search results
-The search results and active is cleared whenever the user clicks the `escape` key. However, you can override the `@onEscape` listener to define your custom behaviour.
+The search results and active is cleared whenever the user clicks the `escape` key. However, you can override the `@onEscape` listener to define your custom behavior.
 
 ```vue
 <dimer-search :model="model" @onEscape="customHandler">
 </dimer-search>
 ```
 
-Also, if you want to hide results `onBlur` or any other action, simply clear the model properties.
+Also, if you want to hide results `onBlur` or any other action, clear the model properties.
 
 ```js
 this.model.query = ''
@@ -363,19 +363,71 @@ this.model.activeIndex = 0
 
 
 ## Dimer Tabs
-The `DimerTabs` component is used to display a group of code blocks as tabs. Since this component is part of the `DimerTree` rendering process, there is no simple way to use like a regular Vue.js component.
+The `DimerTabs` component is used to display a [group of code blocks](https://dimerapp.com/syntax-guide/codegroups) as tabs. Like [Dimer Search](#dimer-search), this component also comes with no styling or markup, and we expect the theme creators to define that.
 
-The only downside is that you cannot control the markup of the tabs. However, you can define the `css classNames` to customise the stylings.
- 
+This component cannot be used directly since we need to hook it into the Dimer rendering process and then render this component. So, we are going to make use of `renderers` to make use of the tabs component.
+
 ```js
-import { Dimer, DimerSearch } from 'dimer-vue'
+import { Dimer, DimerTabs } from 'dimer-vue'
 
-Dimer.use(DimerTabs, {
-  wrapper: 'tabs',
-  nav: 'tabs-nav',
-  navItem: 'nav-item',
-  content: 'tabs-content',
-  contentItem: 'content-item'
+Dimer.use(DimerTabs)
+```
+
+Next, we need to create a custom component, which uses the `dimer-tabs` component and defines the markup and CSS for it.
+
+**components/Tabs.vue**
+```vue
+<template>
+  <dimer-tabs :node="node">
+    <template slot-scope="tabsScope">
+      <div class="tabsHead">
+        <a
+          v-for="(link, index) in tabsScope.links" @click.prevent="activeTab(index)"
+        >
+          {{ link }}
+        </a>
+      </div>
+
+      <div class="tabBody">
+        <div
+          v-for="(pane, index) in tabsScope.panes"
+          v-show="index === activeIndex"
+        >
+          <dimer-tree :node="pane" />
+        </div>
+      </div>
+    </template>
+  </dimer-tabs>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      activeIndex: 0
+    }
+  },
+
+  methods: {
+    activeTab (index) {
+      this.activeIndex = index
+    }
+  },
+
+  props: ['node']
+}
+</script>
+```
+
+Now, we can finally add a renderer to the Dimer rendering process and use this component for displaying tabs.
+
+```js
+import Tabs from '~/components/Tabs'
+
+Dimer.addRenderer(function (node, rerender, createElement) {
+  if (node.tag === 'div' && node.props.className && node.props.className.indexOf('tabs') > -1) {
+    return createElement(Tabs, { props: { node } })
+  }
 })
 ```
 
@@ -401,7 +453,7 @@ if (utils.isARedirect(response)) {
 ```
 
 #### extractNode(node, callback)
-Remove a node from the top level children of the `doc.contents` object. This is usually used to extract the `toc` container and render it as a separate element on the UI.
+Remove a node from the top level children of the `doc.contents` Object. This is usually used to extract the `toc` container and render it as a separate element on the UI.
 
 ```js
 const toc = utils.extractNode(doc.contents, ({ tag, props }) => {
@@ -442,4 +494,4 @@ The code is released under [MIT License](LICENSE.md).
 
 ## Contributors
 
-[thetulage](https://github.com/thetutlage) and everyone who has committed to this repo are proud contributors.
+[thetulage](https://github.com/thetutlage) and everyone who has committed to this repo is proud contributors.

@@ -1,10 +1,50 @@
 import Vue from 'vue/dist/vue'
 import Search from '../src/DimerSearch/component'
-import { Dimer, DimerApi } from '../src/main'
+import DimerTabs from '../src/DimerTabs/component'
+import { Dimer, DimerApi, DimerTree } from '../src/main'
 import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
+Vue.component('DimerTabs', DimerTabs)
 
+Vue.component('Tabs', {
+  template: `
+  <dimer-tabs :node="node">
+    <template slot-scope="tabsScope">
+      <div class="tabsHead">
+        <a v-for="(link, index) in tabsScope.links" @click.prevent="activeTab(index)">{{ link }}</a>
+      </div>
+
+      <div class="tabBody">
+        <div v-for="(pane, index) in tabsScope.panes" v-show="index === activeIndex">
+          <dimer-tree :node="pane" />
+        </div>
+      </div>
+    </template>
+  </dimer-tabs>
+  `,
+
+  data () {
+    return {
+      activeIndex: 0
+    }
+  },
+
+  methods: {
+    activeTab (index) {
+      this.activeIndex = index
+    }
+  },
+
+  props: ['node']
+})
+
+Dimer.use(DimerTree)
+Dimer.addRenderer(function (node, rerender, createElement) {
+  if (node.tag === 'div' && node.props.className && node.props.className.indexOf('tabs') > -1) {
+    return createElement(Vue.component('Tabs'), { props: { node } })
+  }
+})
 Dimer.use(DimerApi, {
   baseUrl: 'http://localhost:5000',
   docUrlPattern: ':zone/:version/:permalink'
@@ -12,7 +52,7 @@ Dimer.use(DimerApi, {
 
 Vue.use(Dimer)
 Vue.mixin({
-  beforeMount () {
+  beforeCreate () {
     if (this.$parent) {
       this.$dimer = this.Dimer.zone('dev-guides').defaultVersion()
     }
@@ -26,8 +66,13 @@ Vue.component('App', {
         query: '',
         activeIndex: 0,
         results: []
-      }
+      },
+      doc: null
     }
+  },
+
+  async created () {
+    this.doc = await this.$dimer.getDoc('introduction')
   },
 
   template: `
@@ -43,6 +88,10 @@ Vue.component('App', {
         </div>
       </template>
     </search>
+
+    <div v-if="doc">
+      <dimer-tree :node="doc.content" />
+    </div>
   </div>
   `,
   components: { Search }
