@@ -55,6 +55,15 @@ export class Version {
      * @type {Object}
      */
     this.cachedUrls = {}
+
+    /**
+     * Cached copy of the tree. Helps is avoiding redundant calls
+     * to the API server, when navigating through docs within the
+     * same zone and verison.
+     *
+     * @type {Array}
+     */
+    this.cachedTree = []
   }
 
   /**
@@ -62,11 +71,18 @@ export class Version {
    *
    * @method getTree
    *
+   * @param {Boolean} reload    Forcefully fetch data from server and avoid cache
+   *
    * @return {Array}
    */
-  async getTree () {
+  async getTree (reload = false) {
+    if (!reload && this.cachedTree.length) {
+      return this.cachedTree
+    }
+
     const response = await this.axios.get(`${this.baseApiUrl}.json`)
-    return response.data
+    this.cachedTree = response.data
+    return this.cachedTree
   }
 
   /**
