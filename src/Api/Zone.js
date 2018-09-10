@@ -18,13 +18,11 @@ import { Version } from './Version'
  *
  * @param {Object} zone
  * @param {Object} axios
- * @param {Object} options
  */
 export class Zone {
-  constructor (zone, axios, options) {
+  constructor (zone, axios) {
     this.zone = zone
     this.axios = axios
-    this.options = options
   }
 
   /**
@@ -45,31 +43,33 @@ export class Zone {
    * @method version
    *
    * @param  {String} versionNo
+   * @param  {String} docUrlPattern
    *
    * @return {Version}
    */
-  version (versionNo) {
+  version (versionNo, docUrlPattern) {
     const version = this.zone.versions.find((version) => version.no === versionNo)
     if (!version) {
       throw new Error(`Version ${versionNo} doesn't exists inside ${this.zone.slug} zone`)
     }
 
-    return new Version(this.zone.slug, version, this.axios, this.options)
+    return new Version(this.zone.slug, version, this.axios, docUrlPattern)
   }
 
   /**
    * Returns an instance of the default version for the given zone
    *
    * @method defaultVersion
+   * @param  {String} docUrlPattern
    *
    * @return {Version}
    */
-  defaultVersion () {
+  defaultVersion (docUrlPattern) {
     const version = this.zone.versions.find((version) => !!version.default)
     if (!version) {
       throw new Error(`${this.zone.slug} zone doesn't have a default version`)
     }
 
-    return new Version(this.zone.slug, version, this.axios, this.options)
+    return new Version(this.zone.slug, version, this.axios, docUrlPattern)
   }
 }

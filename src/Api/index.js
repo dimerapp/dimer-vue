@@ -23,5 +23,26 @@ import { Dimer } from './Dimer'
  */
 export default function (dimer, vue, options) {
   const dimerInstance = new Dimer(options)
-  vue.prototype.Dimer = dimerInstance
+  vue.prototype.$dimer = dimerInstance
+
+  /**
+   * Access to the active dimer when using vue router and route
+   * name matches
+   */
+  Object.defineProperty(vue.prototype, '$activeDimer', {
+    get () {
+      if (!this.$route || this.$dimer.options.docRouteName !== this.$route.name) {
+        throw new Error('the $activeDimer property is only available when using vue router and current route is defined as the doc route inside dimer config')
+      }
+
+      const zone = this.$route.params.zone ? this.$dimer.zone(this.$route.params.zone) : this.$dimer.defaultZone()
+
+      /**
+       * Return the instance for the active zone and verison
+       */
+      return this.$route.params.version
+        ? zone.version(this.$route.params.version, this.$route.path)
+        : zone.defaultVersion(this.$route.path)
+    }
+  })
 }
