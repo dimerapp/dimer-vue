@@ -1,3 +1,13 @@
+<a name="1.0.1"></a>
+## [1.0.1](https://github.com/dimerapp/dimer-vue/compare/v1.0.0...v1.0.1) (2018-09-10)
+
+
+### Features
+
+* **activeDimer:** inject activeDimer when using vue router ([46db614](https://github.com/dimerapp/dimer-vue/commit/46db614))
+
+
+
 <a name="1.0.0"></a>
 # 1.0.0 (2018-09-09)
 
