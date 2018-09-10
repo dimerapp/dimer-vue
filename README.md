@@ -513,6 +513,108 @@ Convert dimer node props to VueJs attrs.
 createElement('div', { attrs: utils.propsToAttrs(node.props) }, [])
 ```
 
+#### getActiveDimer(dimer, route)
+Returns the instance for a version inside a zone by matching the current route. If route is not meant to render the doc, then it will return `null`.
+
+```js
+const activeDimer = getActiveDimer(this.$dimer, this.$route)
+if (!activeDimer) {
+  // route is not meant to render the doc
+}
+```
+
+## Usage with Nuxt
+Using `dimer-vue` with Nuxt is really simple. All we need is a [plugin](#nuxt-plugin) and a [middleware](#nuxt-middleware). 
+
+What we need to do is set `$dimer` and `$activeDimer` properties on the Nuxt App when it is rendered on server side. If you are not aware of the Nuxt lifecycle, then inside `asyncData` method, you cannot access Vue instance. Which means properties like `$dimer` and `$activeDimer` are not available unless the VueJs component is booted.
+
+### Nuxt plugin
+Let's hook everything inside `plugins/dimer.js` file.
+
+```js
+import Vue from 'vue'
+import { Dimer, DimerApi, DimerSearch, DimerTabs, DimerTree, utils } from 'dimer-vue'
+
+export default async function ({ app }) {
+   // required
+  Dimer.use(DimerApi, {
+    baseUrl: 'http://localhost:5000',
+    docRouteName: 'doc'
+  })
+  Dimer.use(DimerTree)
+
+  // optional
+  Dimer.use(DimerSearch)
+  Dimer.use(DimerTabs)
+
+  // Inject Vuejs Plugin
+  Vue.use(Dimer)
+
+  // MORE TO COME HERE....
+}
+```
+
+Now we need to set some properties on the `app` object, so that the `asyncData` method can use the dimer sdk for making API calls.
+
+Again inside the `plugins/dimer.js` file, append the following code.
+
+```js
+app.dimer = Vue.prototype.$dimer
+if (!app.dimer.isLoaded) {
+  await app.dimer.load()
+}
+
+// Only defined when the current route is meant to render the doc
+app.activeDimer = utils.getActiveDimer(app.dimer, app.context.route) || null
+```
+
+### Nuxt middleware
+We also need a plugin, which makes sure to load the meta data from Dimer API server, before the page is rendered.
+
+```js
+export default async function ({ app }) {
+  if (!app.dimer.isLoaded) {
+    await app.dimer.load()
+  }
+}
+```
+
+### Doc Page
+Now inside your `doc` page. You will be able to make API calls as follows.
+
+```js
+<template>
+<div>
+  <aside>
+    <div v-for="node in tree">
+      <h3> {{ node.category }} </h3>
+      <ul>
+        <li v-for="doc in node.docs">
+          <nuxt-link :to="$activeDimer.makeUrl(doc.permalink)">
+            {{ doc.title }}
+          </nuxt-link>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <article>
+    <dimer-tree :node="doc.content" />
+  </article>
+</div>
+</template>
+
+<script>
+  export default {
+    async asyncData ({ app, params }) {
+      const { permalink } = params
+      const [ tree, doc ] = Promise.all([this.activeDimer.getTree(), this.activeDimer.getDoc(permalink)])
+      return { tree, doc }
+    }
+  }
+</script>
+```
+
 ## Development
 1. Fork and clone the repo.
 2. Make your changes with good commit messages.
