@@ -107,13 +107,13 @@ test.group('Dimer - API', () => {
   })
 
   test('return instance for a given version inside a zone', async (assert) => {
-    const dimer = new Dimer({ baseUrl: 'http://localhost:3000', docUrlPattern: ':zone/:version/:permalink' })
+    const dimer = new Dimer({ baseUrl: 'http://localhost:3000' })
     const mock = new MockAdapter(dimer.axios)
     mockConfig(mock)
     mockZones(mock)
 
     await dimer.load()
-    const version = dimer.zone('dev-guides').version('master')
+    const version = dimer.zone('dev-guides').version('master', 'zone/:version/:permalink')
 
     assert.deepEqual(version.version, {
       no: 'master',
@@ -133,7 +133,7 @@ test.group('Dimer - API', () => {
   })
 
   test('return docs for a given version', async (assert) => {
-    const dimer = new Dimer({ baseUrl: 'http://localhost:3000', docUrlPattern: ':zone/:version/:permalink' })
+    const dimer = new Dimer({ baseUrl: 'http://localhost:3000' })
     const mock = new MockAdapter(dimer.axios)
     const tree = [{
       category: 'getting started',
@@ -148,7 +148,7 @@ test.group('Dimer - API', () => {
     mock.onGet('/dev-guides/versions/master.json').reply(200, tree)
 
     await dimer.load()
-    const versionTree = await dimer.zone('dev-guides').version('master').getTree()
+    const versionTree = await dimer.zone('dev-guides').version('master', ':zone/:version/:permalink').getTree()
     assert.deepEqual(versionTree, tree)
   })
 
@@ -173,7 +173,7 @@ test.group('Dimer - API', () => {
     }])
 
     await dimer.load()
-    const version = dimer.zone('dev-guides').defaultVersion()
+    const version = dimer.zone('dev-guides').defaultVersion(':zone/:version/:permalink')
 
     assert.deepEqual(version.version, {
       no: 'master',
@@ -219,7 +219,7 @@ test.group('Dimer - API', () => {
     }])
 
     await dimer.load()
-    const docUrl = dimer.defaultZone().version('master').makeUrl('foo')
+    const docUrl = dimer.defaultZone().version('master', ':zone/:version/:permalink').makeUrl('foo')
     assert.equal(docUrl, '/default/master/foo')
   })
 
@@ -236,12 +236,12 @@ test.group('Dimer - API', () => {
     }])
 
     await dimer.load()
-    const docUrl = dimer.defaultZone().version('master').makeUrl('/foo/')
+    const docUrl = dimer.defaultZone().version('master', ':zone/:version/:permalink').makeUrl('/foo/')
     assert.equal(docUrl, '/default/master/foo')
   })
 
   test('remove leading slashes from :zone', async (assert) => {
-    const dimer = new Dimer({ baseUrl: 'http://localhost:3000', docUrlPattern: '/:zone/:version/:permalink' })
+    const dimer = new Dimer({ baseUrl: 'http://localhost:3000' })
     const mock = new MockAdapter(dimer.axios)
     mockConfig(mock)
     mockZones(mock, [{
@@ -253,12 +253,12 @@ test.group('Dimer - API', () => {
     }])
 
     await dimer.load()
-    const docUrl = dimer.defaultZone().version('master').makeUrl('/foo/')
+    const docUrl = dimer.defaultZone().version('master', ':zone/:version/:permalink').makeUrl('/foo/')
     assert.equal(docUrl, '/default/master/foo')
   })
 
   test('make a search request', async (assert) => {
-    const dimer = new Dimer({ baseUrl: 'http://localhost:3000', docUrlPattern: '/:zone/:version/:permalink' })
+    const dimer = new Dimer({ baseUrl: 'http://localhost:3000' })
     const mock = new MockAdapter(dimer.axios)
     mockConfig(mock)
     mockZones(mock)
@@ -271,12 +271,12 @@ test.group('Dimer - API', () => {
     })
 
     await dimer.load()
-    const results = await dimer.zone('dev-guides').version('master').search('hello world')
+    const results = await dimer.zone('dev-guides').version('master', ':zone/:version/:permalink').search('hello world')
     assert.lengthOf(results, 10)
   })
 
   test('limit search result', async (assert) => {
-    const dimer = new Dimer({ baseUrl: 'http://localhost:3000', docUrlPattern: '/:zone/:version/:permalink' })
+    const dimer = new Dimer({ baseUrl: 'http://localhost:3000' })
     const mock = new MockAdapter(dimer.axios)
     mockConfig(mock)
     mockZones(mock)
@@ -289,12 +289,12 @@ test.group('Dimer - API', () => {
     })
 
     await dimer.load()
-    const results = await dimer.zone('dev-guides').version('master').search('hello world', 2)
+    const results = await dimer.zone('dev-guides').version('master', ':zone/:version/:permalink').search('hello world', 2)
     assert.lengthOf(results, 2)
   })
 
   test('return empty array when query is empty', async (assert) => {
-    const dimer = new Dimer({ baseUrl: 'http://localhost:3000', docUrlPattern: '/:zone/:version/:permalink' })
+    const dimer = new Dimer({ baseUrl: 'http://localhost:3000' })
     const mock = new MockAdapter(dimer.axios)
     mockConfig(mock)
     mockZones(mock)
@@ -307,7 +307,7 @@ test.group('Dimer - API', () => {
     })
 
     await dimer.load()
-    const results = await dimer.zone('dev-guides').version('master').search()
+    const results = await dimer.zone('dev-guides').version('master', ':zone/:version/:permalink').search()
     assert.lengthOf(results, 0)
   })
 })

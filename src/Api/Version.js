@@ -24,11 +24,15 @@
 import axios from 'axios'
 
 export class Version {
-  constructor (zoneSlug, version, axios, options) {
+  constructor (zoneSlug, version, axios, docUrlPattern) {
+    if (!docUrlPattern) {
+      throw new Error('docUrlPattern is required to get instance for the current version')
+    }
+
     this.zoneSlug = zoneSlug
     this.version = version
     this.axios = axios
-    this.options = options
+    this.docUrlPattern = docUrlPattern
     this.searchSource = null
 
     /**
@@ -40,7 +44,7 @@ export class Version {
      * The baseApp URL is the URL of the vue app and
      * not the API.
      */
-    this.baseAppUrl = this.options.docUrlPattern
+    this.baseAppUrl = this.docUrlPattern
       .replace(':zone', this.zoneSlug)
       .replace(':version', this.version.no)
       .replace(/^\//, '')

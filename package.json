@@ -1,13 +1,13 @@
 {
   "name": "dimer-vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Components and helpers to build user documentation websites using Dimer and Vue",
   "main": "dist/dimer-vue.js",
   "module": "dist/dimer-vue.cjs.js",
   "unpkg": "dist/dimer-vue.min.js",
-  "files": {
+  "files": [
     "dist"
-  },
+  ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "commit": "git-cz",
@@ -27,8 +27,8 @@
   "devDependencies": {
     "@adonisjs/mrm-preset": "^1.0.11",
     "@dimerapp/markdown": "^3.1.1",
-    "@vue/server-test-utils": "^1.0.0-beta.24",
-    "@vue/test-utils": "^1.0.0-beta.24",
+    "@vue/server-test-utils": "^1.0.0-beta.25",
+    "@vue/test-utils": "^1.0.0-beta.25",
     "axios-mock-adapter": "^1.15.0",
     "bili": "^3.1.2",
     "commitizen": "^2.10.1",

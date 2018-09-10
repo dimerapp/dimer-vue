@@ -24,10 +24,6 @@ export class Dimer {
       throw new Error('baseUrl is required to instantiate dimer instance')
     }
 
-    if (typeof (this.options.docUrlPattern) !== 'string' || !this.options.docUrlPattern) {
-      throw new Error('docUrlPattern is required to instantiate dimer instance')
-    }
-
     this.axios = axios.create({ baseURL: this.options.baseUrl })
     this.config = null
     this.zones = null
