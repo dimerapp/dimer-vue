@@ -79,5 +79,26 @@ export default {
       }
       return result
     }, {})
+  },
+
+  /**
+   * Returns the instance for the active dimer based upon
+   * the doc route defined inside the config file
+   *
+   * @method getActiveDimer
+   *
+   * @param  {Object}       dimer
+   * @param  {Object}       route
+   *
+   * @return {Object|Null}
+   */
+  getActiveDimer (dimer, route) {
+    if (route && route.name && dimer.options.docRouteName === route.name) {
+      const { params, path } = route
+      const zone = params.zone ? dimer.zone(params.zone) : dimer.defaultZone()
+      return params.version ? zone.version(params.version, path) : zone.defaultVersion(path)
+    }
+
+    return null
   }
 }

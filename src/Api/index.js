@@ -8,6 +8,7 @@
 */
 
 import { Dimer } from './Dimer'
+import utils from '../utils'
 
 /**
  * Here we install the Dimer plugin and attach the instance
@@ -31,18 +32,12 @@ export default function (dimer, vue, options) {
    */
   Object.defineProperty(vue.prototype, '$activeDimer', {
     get () {
-      if (!this.$route || this.$dimer.options.docRouteName !== this.$route.name) {
-        throw new Error('the $activeDimer property is only available when using vue router and your current route is same as the docRouteName')
+      const activeDimer = utils.getActiveDimer(this.$dimer, this.$route)
+      if (activeDimer) {
+        return activeDimer
       }
 
-      const zone = this.$route.params.zone ? this.$dimer.zone(this.$route.params.zone) : this.$dimer.defaultZone()
-
-      /**
-       * Return the instance for the active zone and verison
-       */
-      return this.$route.params.version
-        ? zone.version(this.$route.params.version, this.$route.path)
-        : zone.defaultVersion(this.$route.path)
+      throw new Error('the $activeDimer property is only available when using vue router and your current route is same as the docRouteName')
     },
 
     set () {
