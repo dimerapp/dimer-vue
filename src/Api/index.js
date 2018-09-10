@@ -32,7 +32,7 @@ export default function (dimer, vue, options) {
   Object.defineProperty(vue.prototype, '$activeDimer', {
     get () {
       if (!this.$route || this.$dimer.options.docRouteName !== this.$route.name) {
-        throw new Error('the $activeDimer property is only available when using vue router and current route is defined as the doc route inside dimer config')
+        throw new Error('the $activeDimer property is only available when using vue router and your current route is same as the docRouteName')
       }
 
       const zone = this.$route.params.zone ? this.$dimer.zone(this.$route.params.zone) : this.$dimer.defaultZone()
@@ -43,6 +43,10 @@ export default function (dimer, vue, options) {
       return this.$route.params.version
         ? zone.version(this.$route.params.version, this.$route.path)
         : zone.defaultVersion(this.$route.path)
+    },
+
+    set () {
+      // Defining to get rid Nuxt `inject` errors. Nuxt actually tries to inject to all components, but we don't want that.
     }
   })
 }
