@@ -1,3 +1,30 @@
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/dimerapp/dimer-vue/compare/v1.0.3...v2.0.0) (2018-09-11)
+
+
+### Bug Fixes
+
+* **getActiveDimer:** use current route match path ([5a31e78](https://github.com/dimerapp/dimer-vue/commit/5a31e78))
+* **search:** use this.$activeDimer vs this.$dimer to search ([c0fb5d5](https://github.com/dimerapp/dimer-vue/commit/c0fb5d5))
+
+
+### Code Refactoring
+
+* improve the logic of finding activeDimer and caching it ([f87d195](https://github.com/dimerapp/dimer-vue/commit/f87d195))
+
+
+### Features
+
+* **version:** share zone object with the version instance vs just slug ([fa79e60](https://github.com/dimerapp/dimer-vue/commit/fa79e60))
+
+
+### BREAKING CHANGES
+
+* removed utils.getActiveDimer in favour of $dimer.isDocRoute and
+$dimer.getClosestZoneAndVersion
+
+
+
 <a name="1.0.3"></a>
 ## [1.0.3](https://github.com/dimerapp/dimer-vue/compare/v1.0.2...v1.0.3) (2018-09-10)
 
