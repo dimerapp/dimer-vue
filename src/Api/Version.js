@@ -24,12 +24,12 @@
 import axios from 'axios'
 
 export class Version {
-  constructor (zoneSlug, version, axios, docUrlPattern) {
+  constructor (zone, version, axios, docUrlPattern) {
     if (!docUrlPattern) {
       throw new Error('docUrlPattern is required to get instance for the current version')
     }
 
-    this.zoneSlug = zoneSlug
+    this.zone = zone
     this.version = version
     this.axios = axios
     this.docUrlPattern = docUrlPattern
@@ -38,14 +38,14 @@ export class Version {
     /**
      * The base API url for the dimer rest server
      */
-    this.baseApiUrl = `${this.zoneSlug}/versions/${this.version.no}`
+    this.baseApiUrl = `${this.zone.slug}/versions/${this.version.no}`
 
     /**
      * The baseApp URL is the URL of the vue app and
      * not the API.
      */
     this.baseAppUrl = this.docUrlPattern
-      .replace(':zone', this.zoneSlug)
+      .replace(':zone', this.zone.slug)
       .replace(':version', this.version.no)
       .replace(/^\//, '')
 

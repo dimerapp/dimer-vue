@@ -53,7 +53,7 @@ export class Zone {
       throw new Error(`Version ${versionNo} doesn't exists inside ${this.zone.slug} zone`)
     }
 
-    return new Version(this.zone.slug, version, this.axios, docUrlPattern)
+    return new Version(this.zone, version, this.axios, docUrlPattern)
   }
 
   /**
@@ -70,6 +70,6 @@ export class Zone {
       throw new Error(`${this.zone.slug} zone doesn't have a default version`)
     }
 
-    return new Version(this.zone.slug, version, this.axios, docUrlPattern)
+    return new Version(this.zone, version, this.axios, docUrlPattern)
   }
 }
