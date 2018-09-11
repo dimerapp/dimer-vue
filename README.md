@@ -61,7 +61,7 @@ import Vue from 'vue'
 
 // Tell dimer to use the API plugin
 Dimer.use(DimerApi, {
-  baseUrl: 'http://localhost:5000',
+  apiUrl: 'http://localhost:5000',
   docRouteName: 'doc'
 })
 
@@ -101,8 +101,11 @@ Then tell Dimer about the route name.
 
 ```js
 Dimer.use(DimerApi, {
-  baseUrl: 'http://localhost:5000',
-  docRouteName: 'doc'
+  apiUrl: 'http://localhost:5000',
+  route: {
+    name: 'doc',
+    path: '/:zone/:version/:permalink'
+  }
 })
 ```
 
@@ -124,14 +127,14 @@ At a bare minimum, you need to register the `DimerApi` plugin with the `Dimer` o
 import { Dimer, DimerApi } from 'dimer-vue'
 
 Dimer.use(DimerApi, {
-  baseUrl: 'http://localhost:5000',
+  apiUrl: 'http://localhost:5000',
   docRouteName: 'doc'
 })
 ```
 
 **Once done, you can access `this.$dimer` from your Vue.js components.**
 
-- The `baseUrl` is the URL for your API server.
+- The `apiUrl` is the URL for your API server.
 - The `docRouteName` is the route name you will define with Vue router or Nuxt router. You have to tell this to Dimer also so that it can make internal links properly for you.
 
 #### load
@@ -513,18 +516,8 @@ Convert dimer node props to VueJs attrs.
 createElement('div', { attrs: utils.propsToAttrs(node.props) }, [])
 ```
 
-#### getActiveDimer(dimer, route)
-Returns the instance for a version inside a zone by matching the current route. If route is not meant to render the doc, then it will return `null`.
-
-```js
-const activeDimer = getActiveDimer(this.$dimer, this.$route)
-if (!activeDimer) {
-  // route is not meant to render the doc
-}
-```
-
 ## Usage with Nuxt
-Using `dimer-vue` with Nuxt is really simple. All we need is a [plugin](#nuxt-plugin) and a [middleware](#nuxt-middleware). 
+Using `dimer-vue` with Nuxt is really simple. All we need is a [plugin](#nuxt-plugin).
 
 What we need to do is set `$dimer` and `$activeDimer` properties on the Nuxt App when it is rendered on server side. If you are not aware of the Nuxt lifecycle, then inside `asyncData` method, you cannot access Vue instance. Which means properties like `$dimer` and `$activeDimer` are not available unless the VueJs component is booted.
 
@@ -538,7 +531,7 @@ import { Dimer, DimerApi, DimerSearch, DimerTabs, DimerTree, utils } from 'dimer
 export default async function ({ app }) {
    // required
   Dimer.use(DimerApi, {
-    baseUrl: 'http://localhost:5000',
+    apiUrl: 'http://localhost:5000',
     docRouteName: 'doc'
   })
   Dimer.use(DimerTree)
@@ -558,24 +551,19 @@ Now we need to set some properties on the `app` object, so that the `asyncData` 
 
 Again inside the `plugins/dimer.js` file, append the following code.
 
+> Make sure to define the plugin inside `nuxt.config.js` file.
+
 ```js
 app.dimer = Vue.prototype.$dimer
 if (!app.dimer.isLoaded) {
   await app.dimer.load()
 }
 
-// Only defined when the current route is meant to render the doc
-app.activeDimer = utils.getActiveDimer(app.dimer, app.context.route) || null
-```
+const { route } = app.context
 
-### Nuxt middleware
-We also need a plugin, which makes sure to load the meta data from Dimer API server, before the page is rendered.
-
-```js
-export default async function ({ app }) {
-  if (!app.dimer.isLoaded) {
-    await app.dimer.load()
-  }
+if (app.dimer.isDocRoute(route)) {
+  const { zoneSlug, versionNo } = app.dimer.getClosestZoneAndVersion(route.params)
+  app.activeDimer = app.dimer.zone(zoneSlug).version(versionNo)
 }
 ```
 
