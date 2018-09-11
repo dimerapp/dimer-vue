@@ -18,13 +18,23 @@ import { Zone } from './Zone'
  */
 export class Dimer {
   constructor (options) {
-    this.options = Object.assign({}, options)
+    this.options = Object.assign({
+      route: {}
+    }, options)
 
-    if (typeof (this.options.baseUrl) !== 'string' || !this.options.baseUrl) {
-      throw new Error('baseUrl is required to instantiate dimer instance')
+    if (typeof (this.options.apiUrl) !== 'string' || !this.options.apiUrl) {
+      throw new Error('apiUrl is required to instantiate dimer instance')
     }
 
-    this.axios = axios.create({ baseURL: this.options.baseUrl })
+    if (!this.options.route.path) {
+      throw new Error('Define the path for the route that will render the doc')
+    }
+
+    if (!this.options.route.name) {
+      throw new Error('Define the name of the route that will render the doc. For nuxt apps, it will be page name')
+    }
+
+    this.axios = axios.create({ baseURL: this.options.apiUrl })
     this.config = null
     this.zones = null
   }
@@ -90,5 +100,59 @@ export class Dimer {
    */
   defaultZone () {
     return this.zone('default')
+  }
+
+  /**
+   * Returns the zone slug and version no for the given params. If
+   * params doesn't define either of them, the defaults will be
+   * searched.
+   *
+   * ```
+   * // input { zone?, version? }
+   * // output { zoneSlug, versionNo }
+   * ```
+   *
+   * @method getClosestZoneAndVersion
+   *
+   * @param  {Object}   params { zone, version }
+   *
+   * @return {Object}       { zoneSlug, versionNo }
+   *
+   * @throws {Error}    If zone or version is misisng
+   */
+  getClosestZoneAndVersion (params) {
+    const zoneSlug = params.zone || 'default'
+    const zone = this.zones.find((z) => z.slug === zoneSlug)
+
+    if (!zone) {
+      throw new Error(`There isn't any zone with ${zoneSlug} slug`)
+    }
+
+    const version = params.version
+      ? zone.versions.find((v) => v.no === params.version)
+      : zone.versions.find((v) => v.default)
+
+    if (!version) {
+      throw new Error(`Unable to find ${params.version || 'default'} version in ${zoneSlug} slug. It is recommended to define default version`)
+    }
+
+    return {
+      zoneSlug: zone.slug,
+      versionNo: version.no
+    }
+  }
+
+  /**
+   * Returns a boolean telling if current route is meant to
+   * render doc
+   *
+   * @method isDocRoute
+   *
+   * @param  {Object}   route
+   *
+   * @return {Boolean}
+   */
+  isDocRoute (route) {
+    return route && route.name && this.options.route.name === route.name
   }
 }

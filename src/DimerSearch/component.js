@@ -66,11 +66,11 @@ export const DimerSearch = {
      * @return {void}
      */
     async search () {
-      if (!this.$dimer) {
+      if (!this.$activeDimer) {
         throw new Error('Make sure you are using dimer-vue to allow HTTP calls')
       }
 
-      this.model.results = await this.$dimer.search(this.model.query)
+      this.model.results = await this.$activeDimer.search(this.model.query)
     },
 
     /**

@@ -8,7 +8,6 @@
 */
 
 import { Dimer } from './Dimer'
-import utils from '../utils'
 
 /**
  * Here we install the Dimer plugin and attach the instance
@@ -27,17 +26,33 @@ export default function (dimer, vue, options) {
   vue.prototype.$dimer = dimerInstance
 
   /**
+   * An object of dimer instances for each zone-version combination.
+   * This is done to have cached API responses.
+   */
+  vue._dimers = {}
+
+  /**
    * Access to the active dimer when using vue router and route
    * name matches
    */
   Object.defineProperty(vue.prototype, '$activeDimer', {
     get () {
-      const activeDimer = utils.getActiveDimer(this.$dimer, this.$route)
-      if (activeDimer) {
-        return activeDimer
+      if (!this.$dimer.isDocRoute(this.$route)) {
+        throw new Error('the $activeDimer property is only available when current route is same as the docRouteName')
       }
 
-      throw new Error('the $activeDimer property is only available when using vue router and your current route is same as the docRouteName')
+      const { zoneSlug, versionNo } = this.$dimer.getClosestZoneAndVersion(this.$route.params)
+      const cachedName = `${zoneSlug}-${versionNo}`
+
+      /**
+       * Cach the zone and version instance to avoid unwanted API calls
+       * and cache `makeUrl` calls.
+       */
+      if (!vue._dimers[cachedName]) {
+        vue._dimers[cachedName] = this.$dimer.zone(zoneSlug).version(versionNo)
+      }
+
+      return vue._dimers[cachedName]
     },
 
     set () {
