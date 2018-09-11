@@ -94,7 +94,13 @@ export default {
    */
   getActiveDimer (dimer, route) {
     if (route && route.name && dimer.options.docRouteName === route.name) {
-      const { params, path } = route
+      const { params, matched } = route
+      const path = matched.length ? matched[0].path : ''
+
+      if (!path) {
+        throw new Error('getActiveDimer: current route must have a matched route path')
+      }
+
       const zone = params.zone ? dimer.zone(params.zone) : dimer.defaultZone()
       return params.version ? zone.version(params.version, path) : zone.defaultVersion(path)
     }
