@@ -37,15 +37,6 @@ export class Version {
     this.baseApiUrl = `${this.zone.slug}/versions/${this.version.no}`
 
     /**
-     * The baseApp URL is the URL of the vue app and
-     * not the API.
-     */
-    this.baseAppUrl = this.options.route.path
-      .replace(':zone', this.zone.slug)
-      .replace(':version', this.version.no)
-      .replace(/^\//, '')
-
-    /**
      * Caching created URL's to avoid re-parsing
      *
      * @type {Object}
@@ -135,22 +126,5 @@ export class Version {
         throw error
       }
     }
-  }
-
-  /**
-   * Make url for a permalink
-   *
-   * @method makeUrl
-   *
-   * @param  {String} permalink
-   *
-   * @return {String}
-   */
-  makeUrl (permalink) {
-    if (!this.cachedUrls[permalink]) {
-      this.cachedUrls[permalink] = `/${this.baseAppUrl.replace(':permalink', permalink.replace(/^\/|\/$/g, ''))}`
-    }
-
-    return this.cachedUrls[permalink]
   }
 }

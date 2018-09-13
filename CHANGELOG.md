@@ -1,3 +1,19 @@
+<a name="2.0.1"></a>
+## [2.0.1](https://github.com/dimerapp/dimer-vue/compare/v2.0.0...v2.0.1) (2018-09-13)
+
+
+### Features
+
+* **routes:** allow registering an array of docs ([6b919e4](https://github.com/dimerapp/dimer-vue/commit/6b919e4))
+
+
+### BREAKING CHANGES
+
+* **routes:** remove makeUrl from the version instance, since with an array of docs, it's not
+possible to find the doc route and make a proper url
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/dimerapp/dimer-vue/compare/v1.0.3...v2.0.0) (2018-09-11)
 

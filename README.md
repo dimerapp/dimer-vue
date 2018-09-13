@@ -18,20 +18,17 @@
 ## Dimer vue
 > Components and helpers to build user interfaces using Dimer 
 
-This repo helps you to build the UI using the API exposed by your Dimer project. 
-
 | file                   | size     | gzip size |
 |------------------------|----------|-----------|
 | CJS                    | 27.09 KB  | 6.47 KB  |
 | UMD                    | 29.2 KB   | 6.61 KB  |
 | UMD MIN                | 9.49 KB   | 3.15 KB  |
 
-The goal of the project is to make it easier to create custom designs for your documentation, without re-creating the core 
-elements or components.
+The goal of the project is to make it easier to create custom designs for your documentation, without re-creating the core elements or components.
 
 Following is the list of included components and API's:
 
-- [SDK](#sdk) to make API calls
+- [SDK](#sdk) to make API calls.
 - [Dimer tree](#dimer-tree) component to convert Dimer JSON to Vue `createElement`. 
 - [Dimer Search](#dimer-search) component to search documentation.
 - [Dimer Tabs](#dimer-tabs) component to render multiple codeblocks as tabs.
@@ -62,7 +59,8 @@ import Vue from 'vue'
 // Tell dimer to use the API plugin
 Dimer.use(DimerApi, {
   apiUrl: 'http://localhost:5000',
-  docRouteName: 'doc'
+  routes: [{
+  }]
 })
 
 // Finally hook Dimer with VueJs
@@ -73,50 +71,10 @@ Vue.use(Dimer)
 You can access the following properties inside your vue components.
 
 1. `this.$dimer` when using the `DimerApi` plugin.
-2. `this.$activeDimer` when using Vue router and have defined the `docRouteNamee`.  The `$activeDimer` will only be available for that route.
+2. `this.$activeDimer` when current route belongs to one of the defined config `routes`.
 3. `dimer-search` component when using `DimerSearch` plugin.
-4. `dimer-tabs` component when using `DimerTabs` plugin. 
-5. `dimer-tree` component when using `DimerTree` plugin. 
-
-### $activeDimer
-The `docRouteName` must be defined when using vue router. When it is defined, Dimer will inject `$activeDimer` property to your components, which you can use this property to fetch the data for the current zone and version.
-
-Define the vue route as follows:
-
-> The `path` defined in the vue router can be custom. However, the `params` name have to match. So if you are using the zone name in your URL's, then the param must be `:zone` and same is for `:version`.
-
-```js
-const router = new VueRouter({
-  routes: [
-    {
-      path: '/:zone/:version/:permalink',
-      name: 'doc',
-      component: Doc
-    }
-  ]
-})
-```
-
-Then tell Dimer about the route name.
-
-```js
-Dimer.use(DimerApi, {
-  apiUrl: 'http://localhost:5000',
-  route: {
-    name: 'doc',
-    path: '/:zone/:version/:permalink'
-  }
-})
-```
-
-And finally use it as
-
-```js
-this.$activeDimer.getDoc(permalink)
-this.$activeDimer.getTree()
-this.$activeDimer.makeUrl(permalink)
-this.$activeDimer.search(query, limit)
-```
+4. `dimer-tabs` component when using `DimerTabs` plugin.
+5. `dimer-tree` component when using `DimerTree` plugin.
 
 ## SDK
 The job of the SDK is to make REST calls to the Dimer API server. It hides the complexity of manually creating HTTP requests and instead provides a clean API to fetch and use data.
@@ -128,38 +86,62 @@ import { Dimer, DimerApi } from 'dimer-vue'
 
 Dimer.use(DimerApi, {
   apiUrl: 'http://localhost:5000',
-  docRouteName: 'doc'
+  routes: [
+    {
+      name: 'doc',
+      path: '/:zone/:version/:permalink'
+    }
+  ]
 })
 ```
 
-**Once done, you can access `this.$dimer` from your Vue.js components.**
+**Once done, you can access `this.$dimer` from all of your Vue.js components.**
 
 - The `apiUrl` is the URL for your API server.
-- The `docRouteName` is the route name you will define with Vue router or Nuxt router. You have to tell this to Dimer also so that it can make internal links properly for you.
+- The `routes` array defines the routes in which you need the SDK instance for a specific version. [Learn more about it here](#activedimer)
+
+The SDK is divided into 3 classes.
+
+1. **Dimer**: Main API wrapper
+2. **Zone**: Instance for a given zone.
+3. **Version**: Instance for a given version inside a zone.
+
+You get access to the internal classes by using the helper methods. Example:
+
+```js
+const faqs = this.$dimer.zone('faq')
+const master = faqs.version('master')
+
+// Now using the master version, you can fetch categories, docs and search
+await master.getDoc(permalink)
+await master.search(query)
+await master.getTree()
+```
+
+### [Dimer](https://github.com/dimerapp/dimer-vue/blob/develop/src/Api/Dimer.js)
+The following methods exists on the main Dimer class.
 
 #### load
 The `load` function must be called when you boot your VueJs or Nuxt app. It will hit the Dimer servers and pre-fetches all `zones` and `versions` for you.
 
-Multiple calls to the `load` method are ignored. So we suggest using the Nuxt middleware to call the load function.
-
 ```js
-export default async function ({ app, isServer }) {
-  if (isServer) {
-    await app.$Dimer.load()
-  }
-}
+// do it in the root component
+await this.$dimer.load()
 ```
 
-#### zone(slug)
-Get an instance of a zone for a given slug. If your app is not making use of zones, you can make use of `defaultZone` method.
+#### zone(slug) -> [zone](https://github.com/dimerapp/dimer-vue/blob/develop/src/Api/Zone.js)
+Get an instance of a zone for a given slug. If your app is not making use of zones, you can fetch the `defaultZone`.
 
 ```js
 // Get zone slug from URL
-this.$dimer.zone(params.zone)
+this.$dimer.zone(this.$route.params.zone)
 
 // Using default zone
 this.$dimer.defaultZone()
 ```
+
+### [Zone](https://github.com/dimerapp/dimer-vue/blob/develop/src/Api/Zone.js)
+The following methods are available on the Zone class.
 
 #### getVersions
 Returns an array of versions for a given zone.
@@ -171,19 +153,21 @@ const zone = this.$dimer.zone(params.zone)
 zone.getVersions()
 ```
 
-
-#### version(no, docUrlPattern)
+#### version(no)
 Get an instance of a given version inside a zone. Again if your app uses only a single version, then you can call the `defaultVersion` method.
 
 ```js
 const version = this.$dimer
-    .zone(params.zone)
-    .version(params.version, this.$route.path)
+    .zone(this.$route.params.zone)
+    .version(this.$route.params.version)
 
 const version = this.$dimer
     .defaultZone()
-    .defaultVersion(this.$route.path)
+    .defaultVersion()
 ```
+
+### [Version](https://github.com/dimerapp/dimer-vue/blob/develop/src/Api/Version.js)
+The following methods exists on the Version class. Also you get access to this using `this.$activeDimer` property.
 
 #### getTree(reload = false)
 Get tree of `categories` and their `docs` for a given version. The value is cached after first load. However, you can pass `reload=true` to hit the API server again.
@@ -209,15 +193,51 @@ Search docs for a given version.
 await this.$activeDimer.search(USER_QUERY)
 ```
 
-#### makeUrl(permalink)
-Make an absolute URL for a permalink.
+## activeDimer
+Understanding the use of `$activeDimer` is very important. Also the property `$activeDimer` is not available in all routes, it's only available when
 
-The `this.$activeDimer` is defined when your app is using the `Vue-router` and you have defined the `docRouteName` inside the dimer config.
+1. Current route falls inside one of the registered routes with Dimer.
+2. You are using Vue router or router with similar API.
+3. The params placeholder must use `:zone` for zone, `:version` for version no and `:permalink` for doc permalink.
+
+Registering Vue routes:
+```js
+new VueRouter({
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: Home
+    },
+    {
+      path: '/:zone/:version/:permalink',
+      name: 'doc',
+      component: Doc
+    }
+  ]
+})
+```
+
+Now, we need to tell Dimer that the `Doc` route is meant to render docs, so that dimer should inject `$activeDimer` property and you can make use of it to make API calls.
 
 ```js
-<nuxt-link :to="this.$activeDimer.makeUrl(doc.permalink)">
- {{ doc.title }}
-</nuxt-link>
+Dimer.use(DimerApi, {
+  routes: [
+    {
+      name: 'doc',
+      path: '/:zone/:version/:permalink',
+    }
+  ]
+})
+```
+
+Now anytime someone will visit `/:zone/:version/:permalink`, dimer will inject `$activeDimer` to your components and you can use it to make API calls as follows.
+
+```js
+await this.$activeDimer.getDoc(this.$route.params.permalink)
+await this.$activeDimer.getTree()
+
+await this.$activeDimer.search('user query')
 ```
 
 ## Dimer Tree
@@ -366,10 +386,11 @@ export default {
   methods: {
     openActiveDoc () {
       const selectedRow = this.model.results[this.model.activeIndex]
-      
+      const { params } = this.$route
+
       if (selectedRow) {
         this.$router.push({
-          path: this.$activeDimer.makeUrl(selectedRow.url)
+          path: `${params.zone}/${params.version}/${selectedRow.url}`
         })
       }
     }
@@ -476,8 +497,10 @@ This is done by inspecting the response of `getDoc` method. Following is the com
 const response = await this.$activeDimer.getDoc(params.permalink)
 
 if (utils.isARedirect(response)) {
+  const { params } = this.$route
+
   this.$router.push({
-    path: this.$activeDimer.makeUrl(response.redirect)
+    path: `${params.zone}/${params.version}/${response.redirect}`
   })
   return
 }
@@ -517,12 +540,14 @@ createElement('div', { attrs: utils.propsToAttrs(node.props) }, [])
 ```
 
 ## Usage with Nuxt
-Using `dimer-vue` with Nuxt is really simple. All we need is a [plugin](#nuxt-plugin).
+Using `dimer-vue` with Nuxt is really simple. All we need is a [plugin](#nuxt-plugin) and a [middlware](#nuxt-middleware).
 
 What we need to do is set `$dimer` and `$activeDimer` properties on the Nuxt App when it is rendered on server side. If you are not aware of the Nuxt lifecycle, then inside `asyncData` method, you cannot access Vue instance. Which means properties like `$dimer` and `$activeDimer` are not available unless the VueJs component is booted.
 
 ### Nuxt plugin
 Let's hook everything inside `plugins/dimer.js` file.
+
+> Make sure to register the plugin inside `nuxt.config.js` file.
 
 ```js
 import Vue from 'vue'
@@ -543,27 +568,25 @@ export default async function ({ app }) {
   // Inject Vuejs Plugin
   Vue.use(Dimer)
 
-  // MORE TO COME HERE....
+  // Attach dimer on the app too
+  app.dimer = Vue.prototype.$dimer
+
+  // Make initial api call to fetch config, zones and versions
+  await app.dimer.load()
 }
 ```
 
-Now we need to set some properties on the `app` object, so that the `asyncData` method can use the dimer sdk for making API calls.
-
-Again inside the `plugins/dimer.js` file, append the following code.
-
-> Make sure to define the plugin inside `nuxt.config.js` file.
+### Nuxt middleware
+The nuxt middleware is required to attach `activeDimer` property to the app. Since this property is computed based upon the current route, we need to place it inside a middleware and not the plugin file (plugins are executed once only and not on each route change).
 
 ```js
-app.dimer = Vue.prototype.$dimer
-if (!app.dimer.isLoaded) {
-  await app.dimer.load()
-}
-
-const { route } = app.context
-
-if (app.dimer.isDocRoute(route)) {
-  const { zoneSlug, versionNo } = app.dimer.getClosestZoneAndVersion(route.params)
-  app.activeDimer = app.dimer.zone(zoneSlug).version(versionNo)
+export default function ({ app }) {
+  const { route } = app.context
+  
+  if (app.dimer.isDocRoute(route)) {
+    const { zoneSlug, versionNo } = app.dimer.getClosestZoneAndVersion(route.params)
+    app.activeDimer = app.dimer.zone(zoneSlug).version(versionNo)
+  }
 }
 ```
 
@@ -578,7 +601,7 @@ Now inside your `doc` page. You will be able to make API calls as follows.
       <h3> {{ node.category }} </h3>
       <ul>
         <li v-for="doc in node.docs">
-          <nuxt-link :to="$activeDimer.makeUrl(doc.permalink)">
+          <nuxt-link :to="doc.permalink">
             {{ doc.title }}
           </nuxt-link>
         </li>
@@ -594,6 +617,8 @@ Now inside your `doc` page. You will be able to make API calls as follows.
 
 <script>
   export default {
+    middleware: ['dimer'],
+
     async asyncData ({ app, params }) {
       const { permalink } = params
       const [ tree, doc ] = Promise.all([this.activeDimer.getTree(), this.activeDimer.getDoc(permalink)])
