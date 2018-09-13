@@ -260,75 +260,6 @@ test.group('Dimer - API', () => {
     })
   })
 
-  test('make url as per the docUrlPattern', async (assert) => {
-    const dimer = new Dimer({
-      apiUrl: 'http://localhost:3000',
-      route: {
-        path: ':zone/:version/:permalink',
-        name: 'doc'
-      }
-    })
-    const mock = new MockAdapter(dimer.axios)
-    mockConfig(mock)
-    mockZones(mock, [{
-      slug: 'default',
-      versions: [{
-        no: 'master',
-        name: 'master'
-      }]
-    }])
-
-    await dimer.load()
-    const docUrl = dimer.defaultZone().version('master').makeUrl('foo')
-    assert.equal(docUrl, '/default/master/foo')
-  })
-
-  test('remove leading and trailing slashes from permalink', async (assert) => {
-    const dimer = new Dimer({
-      apiUrl: 'http://localhost:3000',
-      route: {
-        path: ':zone/:version/:permalink',
-        name: 'doc'
-      }
-    })
-    const mock = new MockAdapter(dimer.axios)
-    mockConfig(mock)
-    mockZones(mock, [{
-      slug: 'default',
-      versions: [{
-        no: 'master',
-        name: 'master'
-      }]
-    }])
-
-    await dimer.load()
-    const docUrl = dimer.defaultZone().version('master').makeUrl('/foo/')
-    assert.equal(docUrl, '/default/master/foo')
-  })
-
-  test('remove leading slashes from :zone', async (assert) => {
-    const dimer = new Dimer({
-      apiUrl: 'http://localhost:3000',
-      route: {
-        path: '/:zone/:version/:permalink',
-        name: 'doc'
-      }
-    })
-    const mock = new MockAdapter(dimer.axios)
-    mockConfig(mock)
-    mockZones(mock, [{
-      slug: 'default',
-      versions: [{
-        no: 'master',
-        name: 'master'
-      }]
-    }])
-
-    await dimer.load()
-    const docUrl = dimer.defaultZone().version('master').makeUrl('/foo/')
-    assert.equal(docUrl, '/default/master/foo')
-  })
-
   test('make a search request', async (assert) => {
     const dimer = new Dimer({
       apiUrl: 'http://localhost:3000',
@@ -401,7 +332,7 @@ test.group('Dimer - API', () => {
     assert.lengthOf(results, 0)
   })
 
-  test('return closest zone and version for route params', async (assert) => {
+  test('return closest zone and version for route', async (assert) => {
     const dimer = new Dimer({
       apiUrl: 'http://localhost:3000',
       route: {
@@ -560,13 +491,22 @@ test.group('Dimer - API', () => {
     assert.throw(output, `Unable to find develop version in default slug. It is recommended to define default version`)
   })
 
+  test('raise error when routes have not been defined', async (assert) => {
+    const dimer = new Dimer({
+      apiUrl: 'http://localhost:3000'
+    })
+
+    const fn = () => dimer.isDocRoute({ name: 'doc' })
+    assert.throw(fn, 'Make sure to register doc routes with dimer before using isDocRoute method')
+  })
+
   test('return true when docRoute name is same as the current route', async (assert) => {
     const dimer = new Dimer({
       apiUrl: 'http://localhost:3000',
-      route: {
+      routes: [{
         name: 'doc',
         path: '/:zone/:permalink'
-      }
+      }]
     })
     assert.isTrue(dimer.isDocRoute({ name: 'doc' }))
   })

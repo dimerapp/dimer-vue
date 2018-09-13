@@ -18,20 +18,10 @@ import { Zone } from './Zone'
  */
 export class Dimer {
   constructor (options) {
-    this.options = Object.assign({
-      route: {}
-    }, options)
+    this.options = Object.assign({}, options)
 
     if (typeof (this.options.apiUrl) !== 'string' || !this.options.apiUrl) {
       throw new Error('apiUrl is required to instantiate dimer instance')
-    }
-
-    if (!this.options.route.path) {
-      throw new Error('Define the path for the route that will render the doc')
-    }
-
-    if (!this.options.route.name) {
-      throw new Error('Define the name of the route that will render the doc. For nuxt apps, it will be page name')
     }
 
     this.axios = axios.create({ baseURL: this.options.apiUrl })
@@ -62,7 +52,11 @@ export class Dimer {
    */
   async load (force = false) {
     if (!this.isLoaded || force) {
-      const [ config, zones ] = await Promise.all([this.axios.get('config.json'), this.axios.get('zones.json')])
+      const [ config, zones ] = await Promise.all([
+        this.axios.get('config.json'),
+        this.axios.get('zones.json')
+      ])
+
       this.config = config.data
       this.zones = zones.data
     }
@@ -153,6 +147,14 @@ export class Dimer {
    * @return {Boolean}
    */
   isDocRoute (route) {
-    return route && route.name && this.options.route.name === route.name
+    if (!this.options.routes) {
+      throw new Error('Make sure to register doc routes with dimer before using isDocRoute method')
+    }
+
+    if (!route || !route.name) {
+      return false
+    }
+
+    return !!this.options.routes.find((registeredRoute) => registeredRoute.name === route.name)
   }
 }

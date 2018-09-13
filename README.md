@@ -193,15 +193,6 @@ Search docs for a given version.
 await this.$activeDimer.search(USER_QUERY)
 ```
 
-#### makeUrl(permalink)
-Make an absolute URL for a permalink.
-
-```js
-<nuxt-link :to="this.$activeDimer.makeUrl(doc.permalink)">
- {{ doc.title }}
-</nuxt-link>
-```
-
 ## activeDimer
 Understanding the use of `$activeDimer` is very important. Also the property `$activeDimer` is not available in all routes, it's only available when
 
@@ -395,10 +386,11 @@ export default {
   methods: {
     openActiveDoc () {
       const selectedRow = this.model.results[this.model.activeIndex]
-      
+      const { params } = this.$route
+
       if (selectedRow) {
         this.$router.push({
-          path: this.$activeDimer.makeUrl(selectedRow.url)
+          path: `${params.zone}/${params.version}/${selectedRow.url}`
         })
       }
     }
@@ -505,8 +497,10 @@ This is done by inspecting the response of `getDoc` method. Following is the com
 const response = await this.$activeDimer.getDoc(params.permalink)
 
 if (utils.isARedirect(response)) {
+  const { params } = this.$route
+
   this.$router.push({
-    path: this.$activeDimer.makeUrl(response.redirect)
+    path: `${params.zone}/${params.version}/${response.redirect}`
   })
   return
 }
@@ -607,7 +601,7 @@ Now inside your `doc` page. You will be able to make API calls as follows.
       <h3> {{ node.category }} </h3>
       <ul>
         <li v-for="doc in node.docs">
-          <nuxt-link :to="$activeDimer.makeUrl(doc.permalink)">
+          <nuxt-link :to="doc.permalink">
             {{ doc.title }}
           </nuxt-link>
         </li>
