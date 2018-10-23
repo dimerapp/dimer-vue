@@ -510,4 +510,50 @@ test.group('Dimer - API', () => {
     })
     assert.isTrue(dimer.isDocRoute({ name: 'doc' }))
   })
+
+  test('pass query options options to the API', async (assert) => {
+    const dimer = new Dimer({
+      apiUrl: 'http://localhost:3000',
+      route: {
+        path: '/:zone/:permalink',
+        name: 'doc'
+      }
+    })
+
+    const mock = new MockAdapter(dimer.axios)
+
+    const tree = [{
+      category: 'getting started',
+      docs: [{
+        permalink: 'foo',
+        content: ''
+      }]
+    }]
+
+    mockConfig(mock)
+    mockZones(mock)
+
+    mock.onGet('/dev-guides/versions/master.json').reply(function (options) {
+      return [200, {
+        params: options.params,
+        tree: tree
+      }]
+    })
+
+    await dimer.load()
+    const versionTree = await dimer.zone('dev-guides').version('master').getTree({
+      query: {
+        limit: 10,
+        load_version: true
+      }
+    })
+
+    assert.deepEqual(versionTree, {
+      params: {
+        limit: 10,
+        load_version: true
+      },
+      tree
+    })
+  })
 })
