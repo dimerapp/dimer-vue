@@ -169,20 +169,34 @@ const version = this.$dimer
 ### [Version](https://github.com/dimerapp/dimer-vue/blob/develop/src/Api/Version.js)
 The following methods exists on the Version class. Also you get access to this using `this.$activeDimer` property.
 
-#### getTree(reload = false)
-Get tree of `categories` and their `docs` for a given version. The value is cached after first load. However, you can pass `reload=true` to hit the API server again.
+#### getTree(options)
+Get tree of `categories` and their `docs` for a given version. The value is cached after first load. However, you can pass `options.reload` to always get the latest tree from the server.
 
 ```js
 // API call
 await this.$activeDimer.getTree()
+
+// with options
+await this.$activeDimer.getTree({
+  reload: true,
+  query: {
+    limit: '10',            // Limit the number of categories (default=nolimit)
+    load_content: true,     // Load docs content inline (default=false)
+    load_version: true      // Load version node within content node (default=false)
+  }
+})
 ```
 
-#### getDoc(permalink)
+#### getDoc(permalink, options)
 Get contents for a `doc` with its permalink and for a given version.
 
 ```js
 // API call
-await this.$activeDimer.getDoc(params.permalink)
+await this.$activeDimer.getDoc(params.permalink, {
+  query: {
+    load_version: true // Load version node within content node (default=false)
+  }
+})
 ```
 
 #### search(query, [limit])

@@ -63,7 +63,7 @@ export class Version {
    * @return {Array}
    */
   async getTree (options) {
-    options = Object.assign({ reload: true, query: {} }, options)
+    options = Object.assign({ reload: false, query: {} }, options)
 
     /**
      * Return the cache (if exists)
