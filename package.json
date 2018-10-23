@@ -10,41 +10,42 @@
   ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
-    "commit": "git-cz",
-    "lint": "standard",
     "prepublishOnly": "npm run build",
+    "commit": "git-cz",
     "pretest": "del-cli test && npm run lint",
-    "test": "bili tests/index -c bili.config-test.js && japa",
+    "test": "bili tests/index -c bili.config-test.js && node japaFile.js",
     "posttest": "del-cli test",
     "prebuild": "del-cli dist",
     "build": "bili src/main.js",
     "build:example": "bili example/app.js -o example-output --filename output.js --format umd",
-    "watch:example": "watch 'npm run build:example' src example"
+    "watch:example": "watch 'npm run build:example' src example",
+    "lint": "standard"
   },
   "keywords": [],
   "author": "virk",
   "license": "MIT",
   "devDependencies": {
-    "@adonisjs/mrm-preset": "^1.0.11",
-    "@dimerapp/markdown": "^3.1.1",
+    "@adonisjs/mrm-preset": "^1.0.14",
+    "@dimerapp/markdown": "^3.2.0",
     "@vue/server-test-utils": "^1.0.0-beta.25",
     "@vue/test-utils": "^1.0.0-beta.25",
     "axios-mock-adapter": "^1.15.0",
     "bili": "^3.1.2",
-    "commitizen": "^2.10.1",
+    "commitizen": "^3.0.4",
     "cz-conventional-changelog": "^2.1.0",
     "dedent": "^0.7.0",
     "del-cli": "^1.1.0",
-    "japa": "^1.0.6",
+    "japa": "^2.0.6",
     "japa-cli": "^1.0.1",
     "mrm": "^1.2.1",
-    "pkg-ok": "^2.2.0",
+    "pkg-ok": "^2.3.1",
     "standard": "^12.0.1",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
     "vue-server-renderer": "^2.5.17",
     "vue-template-compiler": "^2.5.17",
-    "watch": "^1.0.2"
+    "watch": "^1.0.2",
+    "yorkie": "^2.0.0"
   },
   "dependencies": {
     "axios": "^0.18.0"
@@ -56,8 +57,7 @@
   },
   "nyc": {
     "exclude": [
-      "test",
-      "japaFile.js"
+      "test"
     ]
   },
   "standard": {
@@ -77,5 +77,8 @@
   "bugs": {
     "url": "https://github.com/dimerapp/dimer-vue/issues"
   },
-  "homepage": "https://github.com/dimerapp/dimer-vue#readme"
+  "homepage": "https://github.com/dimerapp/dimer-vue#readme",
+  "gitHooks": {
+    "commit-msg": "node ./node_modules/@adonisjs/mrm-preset/validateCommit/conventional/validate.js"
+  }
 }
