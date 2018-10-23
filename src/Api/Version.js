@@ -58,16 +58,24 @@ export class Version {
    *
    * @method getTree
    *
-   * @param {Boolean} reload    Forcefully fetch data from server and avoid cache
+   * @param {Object} options
    *
    * @return {Array}
    */
-  async getTree (reload = false) {
-    if (!reload && this.cachedTree.length) {
+  async getTree (options) {
+    options = Object.assign({ reload: false, query: {} }, options)
+
+    /**
+     * Return the cache (if exists)
+     */
+    if (!options.reload && this.cachedTree.length) {
       return this.cachedTree
     }
 
-    const response = await this.axios.get(`${this.baseApiUrl}.json`)
+    const response = await this.axios.get(`${this.baseApiUrl}.json`, {
+      params: options.query
+    })
+
     this.cachedTree = response.data
     return this.cachedTree
   }
@@ -82,8 +90,13 @@ export class Version {
    *
    * @return {Object}
    */
-  async getDoc (permalink) {
-    const response = await this.axios.get(`${this.baseApiUrl}/${permalink}.json`)
+  async getDoc (permalink, options) {
+    options = Object.assign({ query: {} }, options)
+
+    const response = await this.axios.get(`${this.baseApiUrl}/${permalink}.json`, {
+      params: options.query
+    })
+
     return response.data
   }
 
