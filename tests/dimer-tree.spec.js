@@ -222,4 +222,31 @@ test.group('Dimer - Tree', () => {
 
     assert.equal(output.find('[data-line]').length, 1)
   })
+
+  test('define custom renderers when using component', async (assert) => {
+    const template = dedent`
+    - This is li
+    `
+
+    function renderer (node, render, createElement) {
+      if (node.tag === 'li') {
+        return createElement('li', Object.assign(node.props, { class: 'foo' }), node.children.map(render))
+      }
+    }
+
+    const json = await (new Markdown(template)).toJSON()
+    const output = render(freshInstance(), {
+      context: {
+        props: {
+          node: json.contents,
+          customerRenderers: function (globalRenderers) {
+            return [renderer]
+          }
+        }
+      }
+    })
+
+    assert.equal(output.find('ul li.foo').length, 1)
+    assert.equal(output.find('ul li.foo').text(), 'This is li')
+  })
 })
