@@ -75,6 +75,14 @@ function processNode (node, createElement, renderers, renderersSize) {
 }
 
 /**
+ * Normalize renderers by filtering renderers which are not
+ * functions
+ */
+function normalizeRenderers (renderers) {
+  return (Array.isArray(renderers) ? renderers : []).filter((renderer) => typeof (renderer) === 'function')
+}
+
+/**
  * Converts dimer nodes into VueJs virtual DOM.
  *
  * @method DimerTree
@@ -82,7 +90,7 @@ function processNode (node, createElement, renderers, renderersSize) {
  * @param  {Array}  renderers
  */
 export function DimerTree (renderers) {
-  renderers = (Array.isArray(renderers) ? renderers : []).filter((renderer) => typeof (renderer) === 'function')
+  renderers = normalizeRenderers(renderers)
 
   return {
     functional: true,
@@ -93,15 +101,26 @@ export function DimerTree (renderers) {
         validator (value) {
           return value && value.children && Array.isArray(value.children)
         }
-      }
+      },
+      customerRenderers: {}
     },
 
     render (createElement, context) {
+      let componentRenderers = [].concat(renderers)
+
+      /**
+       * If user has defined a function to define custom renderers, then call the
+       * function and use the output
+       */
+      if (typeof (context.props.customerRenderers) === 'function') {
+        componentRenderers = normalizeRenderers(context.props.customerRenderers(componentRenderers))
+      }
+
       return processNode({
         tag: 'div',
         props: {},
         children: context.props.node.children
-      }, createElement, renderers, renderers.length)
+      }, createElement, componentRenderers, componentRenderers.length)
     }
   }
 }

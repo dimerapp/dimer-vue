@@ -307,6 +307,38 @@ Dimer.addRenderer(function (node, rerender, createElement) {
 })
 ```
 
+### Component level renderers
+
+Renderers added using `Dimer.addRenderer` are added globally. Which means, everytime you use `<dimer-tree>`, then will be applied by default.
+
+However, at times, you may want more control by defining different renderers in different areas of your website.
+
+For example: At Dimer, we want to apply different `renderers` when showing FAQ's and apply different when showing normal Guides. This is where we use **Component level renderers**.
+
+```vue
+<template>
+  <dimer-tree :customRenderers="customRenderers" />
+</template>
+
+<script>
+  function faqRenderer (node, rerender, createElement) {
+  }
+
+  export default {
+    methods: {
+      customRenderers (globalRenderers) {
+        return [faqRenderer]
+      }
+    }
+  }
+</script>
+```
+
+The `customRenderers` prop is a function, which receives an array of `globalRenderers` and the output of this function defines the renderers to be used by the component.
+
+By allowing a function, we enable you to re-use `globalRenderers`, cherry pick by filtering from the globalRenderers or `concat` new to them. **Just make sure that return value is an array of functions**
+
+
 ## Dimer Search
 
 The `DimerSearch` component gives you the bare bones to implement the search functionality in your Vue.js apps. 
