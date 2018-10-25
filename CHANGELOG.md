@@ -1,3 +1,13 @@
+<a name="2.1.2"></a>
+## [2.1.2](https://github.com/dimerapp/dimer-vue/compare/v2.1.1...v2.1.2) (2018-10-25)
+
+
+### Bug Fixes
+
+* **dimer-tree:** fix typo in customRenderers name ([761f4ef](https://github.com/dimerapp/dimer-vue/commit/761f4ef))
+
+
+
 <a name="2.1.0"></a>
 # [2.1.0](https://github.com/dimerapp/dimer-vue/compare/v2.0.1...v2.1.0) (2018-10-23)
 
