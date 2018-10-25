@@ -239,7 +239,7 @@ test.group('Dimer - Tree', () => {
       context: {
         props: {
           node: json.contents,
-          customerRenderers: function (globalRenderers) {
+          customRenderers: function (globalRenderers) {
             return [renderer]
           }
         }
