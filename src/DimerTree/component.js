@@ -102,7 +102,7 @@ export function DimerTree (renderers) {
           return value && value.children && Array.isArray(value.children)
         }
       },
-      customerRenderers: {}
+      customRenderers: {}
     },
 
     render (createElement, context) {
@@ -112,8 +112,8 @@ export function DimerTree (renderers) {
        * If user has defined a function to define custom renderers, then call the
        * function and use the output
        */
-      if (typeof (context.props.customerRenderers) === 'function') {
-        componentRenderers = normalizeRenderers(context.props.customerRenderers(componentRenderers))
+      if (typeof (context.props.customRenderers) === 'function') {
+        componentRenderers = normalizeRenderers(context.props.customRenderers(componentRenderers))
       }
 
       return processNode({
