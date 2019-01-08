@@ -118,7 +118,7 @@ export function DimerTree (renderers) {
 
       return processNode({
         tag: 'div',
-        props: {},
+        props: context.props.node.props || {},
         children: context.props.node.children
       }, createElement, componentRenderers, componentRenderers.length)
     }
