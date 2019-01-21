@@ -1,3 +1,12 @@
+<a name="2.1.3"></a>
+## [2.1.3](https://github.com/dimerapp/dimer-vue/compare/v2.1.2...v2.1.3) (2018-10-25)
+
+
+### Bug Fixes
+
+* **dimer-tree:** Add custom props to root node ([6a1efdb](https://github.com/dimerapp/dimer-vue/commit/6a1efdb))
+
+
 <a name="2.1.2"></a>
 ## [2.1.2](https://github.com/dimerapp/dimer-vue/compare/v2.1.1...v2.1.2) (2018-10-25)
 
