@@ -9,4 +9,5 @@
 
 import './utils.spec'
 import './dimer-tree.spec'
+import './dimer-collapse.spec'
 import './api.spec'

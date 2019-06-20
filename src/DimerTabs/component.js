@@ -43,7 +43,7 @@ export const DimerTabs = {
      * a ul
      */
     if (context.props.node.children[0].children.length !== 1) {
-      throw new Error('Invalid tabs navigation node. It must be wrapped inside a ul')
+      throw new Error('Invalid tabs navigation node. It must be wrapped inside an ul')
     }
 
     /**
@@ -65,9 +65,7 @@ export const DimerTabs = {
     }
 
     const child = context.data.scopedSlots.default ? context.data.scopedSlots.default({
-      links: tabListItems.map((item, index) => {
-        return item.children[0].value
-      }),
+      links: tabListItems.map((item, index) => item.children[0].value),
       panes: tabsContentPanes
     }) : context.slots.default || ''
 
