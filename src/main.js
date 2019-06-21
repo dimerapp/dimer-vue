@@ -13,6 +13,7 @@ const dimerInstance = new Dimer()
 export { default as DimerTree } from './DimerTree'
 export { default as DimerSearch } from './DimerSearch'
 export { default as DimerTabs } from './DimerTabs'
+export { default as DimerCollapse } from './DimerCollapse'
 export { dimerInstance as Dimer }
 export { default as utils } from './utils'
 export { default as routes } from './Nuxt/routes'
