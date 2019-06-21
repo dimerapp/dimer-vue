@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
 */
 
+const KEYS_TO_IGNORE = [91, 18, 17, 16, 20, 37, 39]
+
 export const DimerSearch = {
   props: {
     model: {
@@ -72,7 +74,11 @@ export const DimerSearch = {
      *
      * @return {void}
      */
-    async search () {
+    async search (e) {
+      if (KEYS_TO_IGNORE.indexOf(e.which) > -1) {
+        return
+      }
+
       await Promise.all(this.model.data.map((entry) => this.searchFor(entry)))
     },
 
