@@ -1,6 +1,6 @@
 {
   "name": "dimer-vue",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Components and helpers to build user documentation websites using Dimer and Vue",
   "main": "dist/dimer-vue.cjs.js",
   "module": "dist/dimer-vue.umd.js",
