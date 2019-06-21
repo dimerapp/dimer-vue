@@ -26,14 +26,6 @@
 
 The goal of the project is to make it easier to create custom designs for your documentation, without re-creating the core elements or components.
 
-Following is the list of included components and API's:
-
-- [Dimer tree](#dimer-tree) component to convert Dimer JSON to Vue `createElement`. 
-- [Dimer Search](#dimer-search) component to search documentation.
-- [Dimer Tabs](#dimer-tabs) component to render multiple codeblocks as tabs.
-- [Dimer Collapse](#dimer-collapse) component to render collapsable elements.
-- [Utils](#utils) for commonly required tasks.
-
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 ## Table of contents
