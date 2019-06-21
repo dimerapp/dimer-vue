@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
 */
 
+import nuxtPlugin from '../Nuxt/plugin'
+
 /**
  * The Dimer interface is used to accept Dimer plugins, initialize
  * them and wire them up with Vue.js
@@ -68,5 +70,13 @@ export class Dimer {
     this.plugins.forEach(({ pluginFn, options }) => {
       pluginFn(this, Vue, options)
     })
+  }
+
+  /**
+   * Calls the nuxt plugin to load the dimer store and inject
+   * some helpful methods to the context
+   */
+  async loadStore (ctx, inject) {
+    await nuxtPlugin(ctx, inject)
   }
 }
