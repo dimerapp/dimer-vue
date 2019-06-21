@@ -10,14 +10,15 @@
   ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
-    "prepublishOnly": "npm run build",
     "commit": "git-cz",
     "pretest": "del-cli test && npm run lint",
     "test": "bili tests/index -c bili.config-test.js && node japaFile.js",
     "posttest": "del-cli test",
     "prebuild": "del-cli dist",
     "build": "bili src/main.js",
-    "lint": "standard"
+    "lint": "standard",
+    "release": "np",
+    "version": "npm run build"
   },
   "keywords": [],
   "author": "virk",
@@ -38,7 +39,7 @@
     "japa": "^2.0.10",
     "japa-cli": "^1.0.1",
     "mrm": "^1.2.2",
-    "pkg-ok": "^2.3.1",
+    "np": "^5.0.3",
     "standard": "^12.0.1",
     "vue": "^2.6.10",
     "vue-router": "^3.0.6",
@@ -83,5 +84,9 @@
       "pre-commit": "doctoc README.md --title='## Table of contents' && git add README.md",
       "commit-msg": "node ./node_modules/@adonisjs/mrm-preset/validateCommit/conventional/validate.js"
     }
+  },
+  "np": {
+    "contents": ".",
+    "anyBranch": false
   }
 }
