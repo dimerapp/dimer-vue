@@ -2,9 +2,9 @@
   "name": "dimer-vue",
   "version": "3.0.0",
   "description": "Components and helpers to build user documentation websites using Dimer and Vue",
-  "main": "dist/dimer-vue.js",
-  "module": "dist/dimer-vue.cjs.js",
-  "unpkg": "dist/dimer-vue.min.js",
+  "main": "dist/dimer-vue.cjs.js",
+  "module": "dist/dimer-vue.umd.js",
+  "unpkg": "dist/dimer-vue.min.umd.js",
   "files": [
     "dist"
   ],
@@ -15,7 +15,7 @@
     "test": "bili tests/index -c bili.config-test.js && node japaFile.js",
     "posttest": "del-cli test",
     "prebuild": "del-cli dist",
-    "build": "bili src/main.js",
+    "build": "bili",
     "lint": "standard",
     "release": "np",
     "version": "npm run build"

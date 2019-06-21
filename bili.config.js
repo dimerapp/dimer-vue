@@ -1,3 +1,10 @@
+/** @type {import('bili').Config} */
 module.exports = {
-  format: ['cjs', 'umd', 'umd-min']
+  input: 'src/main.js',
+  output: {
+    dir: 'dist',
+    fileName: 'dimer-vue[min].[format].js',
+    format: ['cjs', 'umd', 'umd-min'],
+    moduleName: 'dimerVue'
+  },
 }
