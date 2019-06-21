@@ -86,7 +86,7 @@ function content (DocComponent) {
  * The nuxt routes. They are automatically handled
  * @type {Object}
  */
-export function routes (Layout, Doc) {
+export default function routes (Layout, Doc) {
   return {
     path: '/:zone/:version',
     component: wrapper(Layout),
