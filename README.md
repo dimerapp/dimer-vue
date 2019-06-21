@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Table of contents
+
+- [Dimer vue](#dimer-vue)
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Injected properties](#injected-properties)
+- [SDK](#sdk)
+  - [Dimer](#dimer)
+    - [load](#load)
+    - [zone(slug) -> zone](#zoneslug---zone)
+  - [Zone](#zone)
+    - [getVersions](#getversions)
+    - [version(no)](#versionno)
+  - [Version](#version)
+    - [getTree(options)](#gettreeoptions)
+    - [getDoc(permalink, options)](#getdocpermalink-options)
+    - [search(query, [limit])](#searchquery-limit)
+- [activeDimer](#activedimer)
+- [Dimer Tree](#dimer-tree)
+  - [Component level renderers](#component-level-renderers)
+- [Dimer Search](#dimer-search)
+  - [Highlighting search results using arrow keys](#highlighting-search-results-using-arrow-keys)
+    - [@onArrowUp](#onarrowup)
+    - [@onArrowDown](#onarrowdown)
+  - [Using Enter to visit the selected doc](#using-enter-to-visit-the-selected-doc)
+    - [@onEnter](#onenter)
+  - [Hiding search results](#hiding-search-results)
+- [Dimer Tabs](#dimer-tabs)
+- [Utils](#utils)
+    - [isARedirect(responseBody)](#isaredirectresponsebody)
+    - [extractNode(node, callback)](#extractnodenode-callback)
+    - [propsToAttrs(props)](#propstoattrsprops)
+- [Usage with Nuxt](#usage-with-nuxt)
+  - [Nuxt plugin](#nuxt-plugin)
+  - [Nuxt middleware](#nuxt-middleware)
+  - [Doc Page](#doc-page)
+- [Development](#development)
+- [License](#license)
+- [Contributors](#contributors)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 <div align="center">
   <div>
     <img width="500" src="https://res.cloudinary.com/adonisjs/image/upload/q_100/v1532274184/Dimer_Readme_Banner_lyy7wv.svg" alt="Dimer App">

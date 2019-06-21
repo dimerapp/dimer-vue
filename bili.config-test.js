@@ -1,4 +1,6 @@
 module.exports = {
-  outDir: 'test',
-  filename: 'test.spec.js'
+  output: {
+    dir: 'test',
+    fileName: 'test.spec.js'
+  }
 }
