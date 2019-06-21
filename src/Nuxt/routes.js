@@ -7,6 +7,20 @@
  * file that was distributed with this source code.
 */
 
+function handleError (error) {
+  if (!error.response) {
+    return {
+      statusCode: error.status || 500,
+      message: error.message,
+    }
+  }
+
+  return {
+    statusCode: error.response.status,
+    message: error.response.status === 404 ? 'Route not found' : error.message,
+  }
+}
+
 /**
  * A wrapper component to render to the layout
  */
@@ -45,11 +59,7 @@ function wrapper (LayoutComponent) {
         const tree = await app.$fetchTree(params.zone, params.version)
         return { tree }
       } catch (e) {
-        if (e.statusCode === 404) {
-          error({ statusCode: 404, message: 'Version not found' })
-        } else {
-          error({ statusCode: e.statusCode, message: e.message })
-        }
+        error(handleError(e))
       }
     }
   }
@@ -61,7 +71,7 @@ function wrapper (LayoutComponent) {
 function content (DocComponent) {
   return {
     render (createElement) {
-      return createElement(DocComponent, { doc: this.doc })
+      return createElement(DocComponent, { props: { doc: this.doc } })
     },
 
     /**
@@ -72,11 +82,7 @@ function content (DocComponent) {
         const doc = await app.$fetchDoc(params.zone, params.version, params.permalink)
         return { doc }
       } catch (e) {
-        if (e.statusCode === 404) {
-          error({ statusCode: 404, message: 'Route not found' })
-        } else {
-          error({ statusCode: e.statusCode, message: e.message })
-        }
+        error(handleError(e))
       }
     }
   }
