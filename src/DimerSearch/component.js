@@ -16,8 +16,8 @@ export const DimerSearch = {
           return false
         }
 
-        const { results, query, activeIndex } = value
-        return Array.isArray(results) && typeof (query) === 'string' && typeof (activeIndex) === 'number'
+        const { data, query } = value
+        return Array.isArray(data) && typeof (query) === 'string'
       }
     },
 
@@ -45,17 +45,24 @@ export const DimerSearch = {
           this.$emit('onEnter', e)
           break
         case 27:
-          this.onEscape(e)
+          this.$emit('onEscape', e)
           break
         case 40:
-          this.onArrowDown(e)
+          this.$emit('onArrowDown', e)
           break
         case 38:
-          this.onArrowUp(e)
+          this.$emit('onArrowUp', e)
           break
         default:
           this.search(e)
       }
+    },
+
+    /**
+     * Performs search for a given data entry item
+     */
+    async searchFor (item) {
+      item.results = await this.$searchDocs(item.zone, item.version, this.model.query)
     },
 
     /**
@@ -66,110 +73,7 @@ export const DimerSearch = {
      * @return {void}
      */
     async search () {
-      if (!this.$activeDimer) {
-        throw new Error('Make sure you are using dimer-vue to allow HTTP calls')
-      }
-
-      this.model.results = await this.$activeDimer.search(this.model.query)
-    },
-
-    /**
-     * Updates the active index to let user toggle through
-     * the list using their keyboard.
-     *
-     * The direction must be one of the following
-     * - up
-     * - down
-     *
-     * @method updateActiveIndex
-     *
-     * @param  {String}          direction
-     *
-     * @return {void}
-     */
-    updateActiveIndex (direction) {
-      if (direction === 'up') {
-        if (this.model.activeIndex <= 0) {
-          this.model.activeIndex = this.model.results.length - 1
-          return
-        }
-        this.model.activeIndex--
-      }
-
-      if (direction === 'down') {
-        if ((this.model.activeIndex + 1) >= this.model.results.length) {
-          this.model.activeIndex = 0
-          return
-        }
-
-        this.model.activeIndex++
-      }
-    },
-
-    /**
-     * When up arrow is pressed
-     *
-     * @method onArrowUp
-     *
-     * @param  {Event}  e
-     *
-     * @return {void}
-     */
-    onArrowUp (e) {
-      if (this.$listeners.onArrowUp) {
-        if (process.env.NODE_ENV === 'development') {
-          console.info('arrowUp event ignored as parent component has a listener for it')
-        }
-        return
-      }
-
-      e.preventDefault()
-      this.updateActiveIndex('up')
-    },
-
-    /**
-     * When down arrow is pressed
-     *
-     * @method onArrowDown
-     *
-     * @param  {Event}    e
-     *
-     * @return {void}
-     */
-    onArrowDown (e) {
-      if (this.$listeners.onArrowDown) {
-        if (process.env.NODE_ENV === 'development') {
-          console.info('arrowDown event ignored as parent component has a listener for it')
-        }
-        return
-      }
-
-      e.preventDefault()
-      this.updateActiveIndex('down')
-    },
-
-    /**
-     * When escape is pressed. If a custom listener is defined, then
-     * it will be used over the default behavior
-     *
-     * @method onEscape
-     *
-     * @param  {Object} e
-     *
-     * @return {void}
-     */
-    onEscape (e) {
-      if (this.$listeners.onEscape) {
-        if (process.env.NODE_ENV === 'development') {
-          console.info('onEscape event ignored as parent component has a listener for it')
-        }
-        return
-      }
-
-      e.preventDefault()
-      this.model.query = ''
-      this.model.results = []
-      this.model.activeIndex = 0
+      await Promise.all(this.model.data.map((entry) => this.searchFor(entry)))
     },
 
     /**

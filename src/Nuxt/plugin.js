@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
 */
 
+import { CancelToken, isCancel } from 'axios'
+
 /**
  * The dimer plugin to inject resuable functions and load the vuex
  * store with initial re-usable data
@@ -76,5 +78,47 @@ export default async function dimer ({ store, app }, inject) {
     const url = `${this.$env.DIMER_BASE_URL}/${slug}/versions/${versionNo}/${permalink}.json`
     const response = await this.$axios.get(url)
     return response.data
+  })
+
+  /**
+   * Perform docs search
+   */
+  inject('searchDocs', async function (slug, versionNo, query, limit = 0) {
+    this._dimerAxiosTokens = this._dimerAxiosTokens || {}
+    const uniquePathSegment = `${slug}/${versionNo}`
+
+    /**
+     * Cancel too many search requests for the same zone and version. It's possible
+     * that someone may want to query multiple versions in parallel and hence
+     * the cancellation tokens has to be for a given zone/version.
+     */
+    if (this._dimerAxiosTokens[uniquePathSegment]) {
+      this._dimerAxiosTokens[uniquePathSegment].cancel()
+    }
+
+    /**
+     * Creating a new token for the current slug and version
+     */
+    this._dimerAxiosTokens[uniquePathSegment] = CancelToken.source()
+
+    const url = `${this.$env.DIMER_BASE_URL}/${slug}/versions/${versionNo}/search.json`
+
+    try {
+      const response = await this.$axios.get(url, {
+        params: { query, limit },
+        cancelToken: this._dimerAxiosTokens[uniquePathSegment].token
+      })
+
+      /**
+       * Delete the cancel token
+       */
+      delete this._dimerAxiosTokens[uniquePathSegment]
+
+      return response.data
+    } catch (error) {
+      if (!isCancel(error)) {
+        throw error
+      }
+    }
   })
 }
