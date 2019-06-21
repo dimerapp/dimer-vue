@@ -20,9 +20,9 @@
 
 | file                   | size     | gzip size |
 |------------------------|----------|-----------|
-| CJS                    | 27.09 KB  | 6.47 KB  |
-| UMD                    | 29.2 KB   | 6.61 KB  |
-| UMD MIN                | 9.49 KB   | 3.15 KB  |
+| CJS                    | 26 KB  | 5.83 KB  |
+| UMD                    | 28.3 KB   | 6.02 KB  |
+| UMD MIN                | 9.63 KB   | 2.98 KB  |
 
 The goal of the project is to make it easier to create custom designs for your documentation, without re-creating the core elements or components.
 
@@ -31,7 +31,7 @@ Following is the list of included components and API's:
 - [Dimer tree](#dimer-tree) component to convert Dimer JSON to Vue `createElement`. 
 - [Dimer Search](#dimer-search) component to search documentation.
 - [Dimer Tabs](#dimer-tabs) component to render multiple codeblocks as tabs.
-- [Dimer Collapse](#dimer-collapse) component to render collapsable elements
+- [Dimer Collapse](#dimer-collapse) component to render collapsable elements.
 - [Utils](#utils) for commonly required tasks.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -39,28 +39,20 @@ Following is the list of included components and API's:
 ## Table of contents
 
 - [Prerequisites](#prerequisites)
-- [Setup](#setup)
-- [Dimer Tree](#dimer-tree)
-  - [Component level renderers](#component-level-renderers)
-- [Dimer Search](#dimer-search)
-  - [Highlighting search results using arrow keys](#highlighting-search-results-using-arrow-keys)
-    - [@onArrowUp](#onarrowup)
-    - [@onArrowDown](#onarrowdown)
-  - [Using Enter to visit the selected doc](#using-enter-to-visit-the-selected-doc)
-    - [@onEnter](#onenter)
-  - [Hiding search results](#hiding-search-results)
-- [Dimer Tabs](#dimer-tabs)
-- [Dimer collapse](#dimer-collapse)
-- [Utils](#utils)
-    - [isARedirect(responseBody)](#isaredirectresponsebody)
-    - [extractNode(node, callback)](#extractnodenode-callback)
-    - [propsToAttrs(props)](#propstoattrsprops)
-- [Usage with Nuxt](#usage-with-nuxt)
-  - [Pre-requisites](#pre-requisites)
-  - [Layout component](#layout-component)
-- [Development](#development)
-- [License](#license)
-- [Contributors](#contributors)
+- [Installation](#installation)
+- [Nuxt usage](#nuxt-usage)
+  - [Setup `nuxt.config.js` file](#setup-nuxtconfigjs-file)
+  - [Registering routes](#registering-routes)
+    - [Layout component](#layout-component)
+    - [Doc component](#doc-component)
+- [Vuex store](#vuex-store)
+- [Dimer plugins](#dimer-plugins)
+  - [Dimer tree](#dimer-tree)
+    - [Component renderers](#component-renderers)
+  - [Dimer tabs](#dimer-tabs)
+  - [Dimer collapse](#dimer-collapse)
+  - [Dimer search](#dimer-search)
+    - [Events](#events)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -71,434 +63,55 @@ Before getting started, make sure you know how to connect to the Dimer API serve
 1. If you are testing it on your local server, then it will be accessible as `http://localhost:5000`
 2. If you have published it on Dimer cloud, then it will be `https://api.dimerapp.com/YOUR_DOMAIN`.
 
-## Setup
-Install the package from npm registry as follows.
+## Installation
+Install the package from npm registry as follows:
 
-```shell
+```sh
 npm i dimer-vue
 
 # yarn
 yarn add dimer-vue
 ```
 
-Once installed, you can make use of it as follows.
+## Nuxt usage
+The documentation covers this module usage with Nuxt. However, any Vue project using **Vue router** and **Vuex store** can leverage the API.
+
+> Nuxt has almost zero boilerplate to create full blow SPA in Vue.js. So give it a try.
+
+Before getting started, you have to install handful of dependencies and register them as nuxt modules inside `nuxt.config.js` file.
+
+```sh
+npm i nuxt-env @nuxtjs/axios @nuxtjs/router
+```
+
+- The `nuxt-env` is required, so that we can define environment variable for the Dimer API base url. The environment variables gives us the freedom to point to a different API endpoints in **production** and **development** respectively.
+- The `@nuxtjs/axios` is required for making API calls.
+- The `@nuxtjs/router` is required to register custom routes exposed by this module. The route is an optional dependency, however it makes the process of registering custom routes so simple. 
+
+### Setup `nuxt.config.js` file
+Next step is to setup the `nuxt.config.js` file with following code.
 
 ```js
-import { Dimer, DimerTree } from 'dimer-vue'
-import Vue from 'vue'
-
-Dimer.use(DimerTree)
-
-// Finally hook Dimer with VueJs
-Vue.use(Dimer)
-```
-
-The `Dimer.use` function accepts the Dimer plugins. Finally, you will have to call `Vue.use(Dimer)`, so that Dimer can do its job of hooking it's plugins into the Vue runtime.
-
-## Dimer Tree
-The `DimerTree` component is the bare minimum you need to render markdown JSON AST as Vue elements.
-
-```js
-import { Dimer, DimerTree } from 'dimer-vue'
-Dimer.use(DimerTree)
-
-Vue.use(Dimer)
-```
-
-Now, you can use it as follows.
-
-```vue
-<template>
-  <section>
-    <div v-if="doc">
-      <h1> {{ doc.title }} </h1>
-      <dimer-tree :node="doc.content">
-    </div>
-  </section>
-</template>
-
-<script>
-  import axios from 'axios' 
-
-  export default {
-    data () {
-      doc: null
-    },
-    
-    mounted () {
-      const url = 'http://localhost:5000/guides/master/introduction.json'
-
-      const response = await axios.get(url)      
-      this.doc = response.data
-    }
-  }
-</script>
-```
-
-The significant part about the Dimer Tree component is that you can define your own `renderers` for specific elements.
-
-For example, You want to add a class to each `h2` in your documentation.
-
-```js
-import { utils } from 'dimer-vue'
-
-Dimer.addRenderer(function (node, rerender, createElement) {
-  if (node.tag === 'h2') {
-    node.props.className = ['section-title']
-
-    return createElement('h2', {
-      attrs: utils.propsToAttrs(node.props)
-    }, node.children.map(rerender))
-  }
-})
-```
-
-Or adding target blank to all external URL's.
-
-```js
-import { utils } from 'dimer-vue'
-
-Dimer.addRenderer(function (node, rerender, createElement) {
-  if (node.tag === 'a' && /^http(s)?/.test(node.url)) {
-    node.props.target = '_blank'
-    
-    return createElement('a', {
-      attrs: utils.propsToAttrs(node.props)
-    }, node.children.map(rerender))
-  }
-})
-```
-
-### Component level renderers
-
-Renderers added using `Dimer.addRenderer` are added globally. Which means, everytime you use `<dimer-tree>`, then will be applied by default.
-
-However, at times, you may want more control by defining different renderers in different areas of your website.
-
-For example: At Dimer, we want to apply different `renderers` when showing FAQ's and apply different when showing normal Guides. This is where we use **Component level renderers**.
-
-```vue
-<template>
-  <dimer-tree :customRenderers="customRenderers" />
-</template>
-
-<script>
-  function faqRenderer (node, rerender, createElement) {
-  }
-
-  export default {
-    methods: {
-      customRenderers (globalRenderers) {
-        return [faqRenderer]
-      }
-    }
-  }
-</script>
-```
-
-The `customRenderers` prop is a function, which receives an array of `globalRenderers` and the output of this function defines the renderers to be used by the component.
-
-By allowing a function, we enable you to re-use `globalRenderers`, cherry pick by filtering from the globalRenderers or `concat` new to them. **Just make sure that return value is an array of functions**
-
-
-## Dimer Search
-
-The `DimerSearch` component gives you the bare bones to implement the search functionality in your Vue.js apps. 
-
-The component doesn't create any markup, and neither provides any styling. We encourage theme creators to do that.
-
-```js
-import { Dimer, DimerSearch } from 'dimer-vue'
-
-Dimer.use(DimerSearch)
-```
-
-Now, you can make use of the search component as follows.
-
-```vue
-<template>
-  <dimer-search :model="model">
-    <template slot-scope="searchScope">  
-      <input
-        type="search"
-        v-model="model.query"
-        @keyup="searchScope.triggerSearch"
-      />
-      
-      <div>
-       <li v-for="row in model.results">
-         <h2>
-           <component :is="searchScope.renderMark(row.title.marks)" />
-          </h2>
-          <p v-if="row.body.length">
-            <component :is="searchScope.renderMark(row.body[0].marks)" />
-          </p>
-       </li>
-      </div>
-    </template>
-  </dimer-search>
-</template>
-
-<script>
-  export default {
-    data () {
-      return {
-        model: {
-          query: '',
-          results: [],
-          activeIndex: 0
-        }
-      }
-    }
-  }
-</script>
-```
-
-### Highlighting search results using arrow keys
-The search component listens for `up` and `down` arrows and updates the `activeIndex` property. Now you can use this property to highlight search results as follows.
-
-```vue
-<li
-  v-for="(row, index) in model.results"
-  :class="{highlight: index === model.activeIndex}"
->
-</li>
-```
-
-If you want, you can define your custom listeners for `arrowUp` and `arrowDown`. In that case, the default functionality is removed.
-
-#### @onArrowUp
-```vue
-<dimer-search :model="model" @onArrowUp="customHandler">
-</dimer-search>
-```
-
-#### @onArrowDown
-```vue
-<dimer-search :model="model" @onArrowUp="customHandler">
-</dimer-search>
-```
-
-### Using Enter to visit the selected doc
-Now since users can use their keyboard to navigate through the list of search results, we can also let them `Press Enter` to select a search result.
-
-#### @onEnter
-```vue
-<template>
-  <dimer-search :model="model" @onEnter="openActiveDoc">
-  </dimer-search>
-</template>
-
-<script>
 export default {
-  methods: {
-    openActiveDoc () {
-      const selectedRow = this.model.results[this.model.activeIndex]
-      const { params } = this.$route
-
-      if (selectedRow) {
-        this.$router.push({
-          path: `${params.zone}/${params.version}/${selectedRow.url}`
-        })
-      }
-    }
-  }
+  modules: [
+    '@nuxtjs/router',
+    '@nuxtjs/axios',
+    ['nuxt-env', {
+      keys: [{
+        key: 'DIMER_BASE_URL',
+        default: 'http://localhost:5000'
+      }]
+    }]
+  ],
+  plugins: ['~plugins/dimer.js']
 }
-</script>
 ```
 
-### Hiding search results
-The search results and active is cleared whenever the user clicks the `escape` key. However, you can override the `@onEscape` listener to define your custom behavior.
-
-```vue
-<dimer-search :model="model" @onEscape="customHandler">
-</dimer-search>
-```
-
-Also, if you want to hide results `onBlur` or any other action, clear the model properties.
+We will create `~plugins/dimer.js` now, with following contents.
 
 ```js
-this.model.query = ''
-this.model.results = []
-this.model.activeIndex = 0
-```
-
-
-## Dimer Tabs
-The `DimerTabs` component is used to display a [group of code blocks](https://dimerapp.com/syntax-guide/codegroups) as tabs. Like [Dimer Search](#dimer-search), this component also comes with no styling or markup, and we expect the theme creators to define that.
-
-This component cannot be used directly since we need to hook it into the Dimer rendering process and then render this component. So, we are going to make use of `renderers` to make use of the tabs component.
-
-```js
-import { Dimer, DimerTabs } from 'dimer-vue'
-Dimer.use(DimerTabs)
-```
-
-Next, we need to create a custom component, which uses the `dimer-tabs` component and defines the markup and CSS for it.
-
-**components/Tabs.vue**
-
-```vue
-<template>
-  <dimer-tabs :node="node">
-    <template slot-scope="tabsScope">
-      <div class="tabsHead">
-        <a
-          v-for="(link, index) in tabsScope.links" @click.prevent="activeTab(index)"
-        >
-          {{ link }}
-        </a>
-      </div>
-
-      <div class="tabBody">
-        <div
-          v-for="(pane, index) in tabsScope.panes"
-          v-show="index === activeIndex"
-        >
-          <dimer-tree :node="pane" />
-        </div>
-      </div>
-    </template>
-  </dimer-tabs>
-</template>
-
-<script>
-export default {
-  data () {
-    return {
-      activeIndex: 0
-    }
-  },
-
-  methods: {
-    activeTab (index) {
-      this.activeIndex = index
-    }
-  },
-
-  props: ['node']
-}
-</script>
-```
-
-Now, we can finally add a renderer to the Dimer rendering process and use this component for displaying tabs.
-
-```js
-import Tabs from '~/components/Tabs'
-
-Dimer.addRenderer(function (node, rerender, createElement) {
-  if (node.tag === 'div' && node.props.className && node.props.className.indexOf('tabs') > -1) {
-    return createElement(Tabs, { props: { node } })
-  }
-})
-```
-
-## Dimer collapse
-
-The `DimerCollapse` component is used to handle the `[collapse]` macro output.
-
-The usage is similar to `DimerTabs` component.
-
-```js
-import { Dimer, DimerCollapse } from 'dimer-vue'
-Dimer.use(DimerCollapse)
-```
-
-```js
-<template>
-  <dimer-collapse :node="node">
-    <template slot-scope="collapseScope">
-      <details>
-        <summary>{{ collapseScope.title }}</summary>
-        <dimer-tree :node="collapseScope.body" />
-      </details>
-    </template>
-  </dimer-collapse>
-</template>
-```
-
-Finally, add a new renderer to handle collapse node.
-
-```js
-import Collapse from '~/components/Collapse'
-
-Dimer.addRenderer(function (node, rerender, createElement) {
-  if (node.props.className && node.props.className.indexOf('collapsible') > -1) {
-    return createElement(Collapse, { props: { node } })
-  }
-})
-```
-
-## Utils
-The utils object has several handy methods to make certain tasks simple.
-
-#### isARedirect(responseBody)
-Since docs in Dimer can define their `redirects`, we need to handle this part in the Vue app to redirect the user to correct permalink.
-
-This is done by inspecting the response of `getDoc` method. Following is the complete example of same.
-
-```js
-const response = await this.$activeDimer.getDoc(params.permalink)
-
-if (utils.isARedirect(response)) {
-  const { params } = this.$route
-
-  this.$router.push({
-    path: `${params.zone}/${params.version}/${response.redirect}`
-  })
-  return
-}
-
-// otherwise render doc
-```
-
-#### extractNode(node, callback)
-Remove a node from the top level children of the `doc.contents` Object. This is usually used to extract the `toc` container and render it as a separate element on the UI.
-
-```js
-const toc = utils.extractNode(doc.contents, ({ tag, props }) => {
-  return tag === 'div' && props.className.indexOf('toc-container') > -1
-})
-
-doc.contents // without tot-container
-toc // just toc-container
-```
-
-Later, you can render them as two different elements.
-
-```vue
-<article>
-  <dimer-tree :node="doc.contents" />
-</article>
-
-<aside>
-  <dimer-tree :node="toc" />
-</aside>
-```
-
-#### propsToAttrs(props)
-Convert dimer node props to VueJs attrs.
-
-```js
-createElement('div', { attrs: utils.propsToAttrs(node.props) }, [])
-```
-
-## Usage with Nuxt
-The usage of Dimer gets very interesting with Nuxt, since you can build a fully functional routing based documentation site with it.
-
-### Pre-requisites 
-
-1. Your app must make use of [Vuex store](https://nuxtjs.org/guide/vuex-store).
-2. Use `@nuxtjs/axios` module for API calls.
-3. You have to inject couple of routes programmatically. We personally ditch the `pages` routing completely and started using [router-module](https://github.com/nuxt-community/router-module). Another way can be use [extendRoutes](https://nuxtjs.org/api/configuration-router#extendroutes) in `nuxt.config.js` file.
-
-**Let's get started**.
-
-The first step is to create a Nuxt plugin and write following code snippet inside it.
-
-```js
-import { Dimer, DimerTree } from 'dimer-vue'
 import Vue from 'vue'
+import { Dimer, DimerTree } from 'dimer-vue'
 
 export default async function (ctx, inject) {
   Dimer.use(DimerTree)
@@ -513,57 +126,46 @@ export default async function (ctx, inject) {
 }
 ```
 
-```js
-{
-  plugins: ['~plugins/dimer.js']
-}
-```
+The dimer plugin is straight forward. We pre-load some stuff from the API to the **Vuex store** and also **inject** some helper functions.
 
-Next, we need to register a couple of dynamic routes. These routes are meant to handle the Vue requests, call the correct Dimer API endpoint and then pass data to you.
+> Feel free to add custom renderers and Dimer plugins inside this file.
 
-**Using router module router.js file.**
+### Registering routes
+Now, we need to register couple of routes, which are handled by Dimer. This is done, so that Dimer can offload the task of making API calls, validating routes to have correct `zone` and `version` etc.
+
+We will leverage the `router` module and define following routes inside `router.js` file.
 
 ```js
 import Vue from 'vue'
 import Router from 'vue-router'
 import { routes } from 'dimer-vue'
 
-import LayoutComponent from '~components/Layout'
-import DocComponent from '~components/Doc'
-
-const dimerRoutes = routes(LayoutComponent, DocComponent)
+import LayoutComponent from '~/components/Layout'
+import DocComponent from '~/components/Doc'
 
 Vue.use(Router)
 
 export function createRouter() {
-  const appRoutes = dimerRoutes.concat([
-    // Your application routes
-  ])
-
   return new Router({
     mode: 'history',
-    routes: appRoutes
+    routes: routes(LayoutComponent, DocComponent)
   })
 }
 ```
 
-The `dimerRoutes` will register following routes to the Vue router.
+The `routes` function exported by Dimer will register following routes
 
-- `:zone/:version`
-- `:zone/:version/:permalink`
+- `:/zone/:version`
+- `:/zone/:version/:permalink`
 
-Any requests coming to these routes will be handled by Dimer and it will call the Dimer API and passes the content to your components.
+Also, if you have noticed, the `routes` function accepts two Vue components. These components are rendered when Dimer will receive request on the registered routes.
 
-### Layout component
-
-The layout component is responsible for rendering the page layout and the documentation navigation (which is usually the sidebar).
+#### Layout component
+Define the complete page layout and documentation navigation (usually a sidebar) in this file.
 
 ```vue
 <template>
-  <section>
-    <header>
-    </header>
-    
+  <section>    
     <main>
       <aside>
         <ul v-for="node in tree">
@@ -588,9 +190,21 @@ The layout component is responsible for rendering the page layout and the docume
    props: ['tree']
  }
 </script>
-``` 
 
-Once, done with the layout, we need another component to render the actual doc.
+<style>
+  .main {
+    display: flex;
+  }
+
+  .aside {
+    width: 300px;
+    padding-right: 40px;
+  }
+</style>
+```
+
+#### Doc component
+The `Doc` component is meant to render a single doc.
 
 ```vue
 <template>
@@ -607,17 +221,257 @@ Once, done with the layout, we need another component to render the actual doc.
 </script>
 ```
 
-That's all you need :)
+That's all. Now you have a fully working Nuxt app consuming the Dimer API and rendering docs. From here
 
-## Development
-1. Fork and clone the repo.
-2. Make your changes with good commit messages.
-3. Once done, share a PR.
+- You are free to design and structure the layout as per your needs.
+- Use any Dimer plugins to enhance the documentation.
+- Don't worry about someone entering the wrong URL, as Dimer custom routes will handle everything for you.
 
-## License
+## Vuex store
+The `Dimer.loadStore` method registers a module named `dimer` and makes the API calls to the Dimer API and add following values to the store.
 
-The code is released under [MIT License](LICENSE.md).
+```js
+{
+  websiteOptions: {},
+  zones: []
+}
+```
 
-## Contributors
+1. The `websiteOptions` is loaded from `/config.json` endpoint.
+2. The `zones` are loaded from `/zones.json` endpoint.
 
-[thetulage](https://github.com/thetutlage) and everyone who has committed to this repo is proud contributors.
+You are free to read values from the store from any custom component. For example: Rendering the main menu from the available zones and so on. 
+
+## Dimer plugins
+The Dimer plugins are mainly focused on the Rendering layer of Vue. As you know that Dimer API returns the markdown content as JSON AST and available plugins can ease the process of rendering and handling certain nodes differently.
+
+### Dimer tree
+The `DimerTree` is the bare minimum you need to render the JSON AST as it is.
+
+```js
+import { DimerTree, Dimer } from 'dimer'
+Dimer.use(DimerTree)
+```
+
+and then use the component as follows:
+
+```vue
+<template>
+  <dimer-tree :node="doc.content" />
+</template>
+```
+
+The `DimerTree` component also accepts one or more `renderer` functions. These functions will receive all the AST nodes and can handle them any way. 
+
+Let's say we want to add `target="_blank"` to all external links. We can define a renderer for that.
+
+```js
+import { DimerTree, Dimer, utils } from 'dimer'
+Dimer.use(DimerTree)
+
+Dimer.addRenderer(function (node, rerender, createElement) {
+  if (node.tag === 'a' && /^http(s)?/.test(node.url)) {
+    node.props.target = '_blank'
+
+    const attrs = utils.propsToAttrs(node.props)
+    const children = node.children.map(rerender)
+
+    return createElement('a', { attrs }, children)
+  }
+})
+```
+
+> The possibilities with custom renderers are endless
+
+#### Component renderers
+The renderers added via `Dimer.addRenderer` are global and will always be used by `dimer-tree` component. However, you can use `customRenderers` prop to define custom renderers.
+
+```vue
+<template>
+  <dimer-tree :node="doc.content" />
+</template>
+
+<script>
+  function myCustomRenderer (node, rerender, createElement) {
+  }
+
+  export default {
+    methods: {
+      customRenderers (globalRenderers) {
+        return globalRenderers.concat(myCustomRenderer)
+      }
+    }
+  }
+</script>
+```
+
+### Dimer tabs
+The `DimerTabs` component is registered to ease the process showing multiple codeblocks inside a tab. They are defined using the `[codeblock]` macro in Markdown.
+
+This is a renderless component, that you need to wrap in order to define your own markup for tabs.
+
+The first step is to define a Dimer renderer, that returns a custom component for the `tabs` node.
+
+```js
+import { Dimer, DimerTabs } from 'dimer-vue'
+Dimer.use(DimerTabs)
+
+import Tabs from '~/components/Tabs'
+
+Dimer.addRenderer(function (node, rerender, createElement) {
+  if (node.props.className && node.props.className.indexOf('tabs') > -1) {
+    return createElement(Tabs, { props: { node } })
+  }
+})
+```
+
+Next step is to create the `~components/Tabs` component. This component will make use `DimerTabs` and defines the markup for the tabs.
+
+```vue
+<template>
+  <dimer-tabs :node="node">
+    <template slot-scope="tabs">
+      <div class="tabsHead">
+        <a
+          v-for="(link, index) in tabs.links" @click.prevent="activeTab(index)"
+        >
+          {{ link }}
+        </a>
+      </div>
+
+      <div class="tabBody">
+        <div
+          v-for="(pane, index) in tabs.panes"
+          v-show="index === activeIndex"
+        >
+          <dimer-tree :node="pane" />
+        </div>
+      </div>
+    </template>
+  </dimer-tabs>
+</template>
+
+<script>
+  export default {
+    data () {
+      return {
+        activeIndex: 0
+      }
+    },
+
+    methods: {
+      activeTab (index) {
+        this.activeIndex = index
+      }
+    },
+
+    props: ['node']
+  }
+</script>
+```
+
+### Dimer collapse
+The `DimerCollapse` component is similar to the `DimerTabs` component, but to define the custom markup and behavior for the `[collapse]` macro.
+
+```js
+import { Dimer, DimerCollapse } from 'dimer-vue'
+Dimer.use(DimerCollapse)
+
+import Collapse from '~/components/Collapse'
+
+Dimer.addRenderer(function (node, rerender, createElement) {
+  if (node.props.className && node.props.className.indexOf('collapsible') > -1) {
+    return createElement(Collapse, { props: { node } })
+  }
+})
+```
+
+Next step is to create the `~/components/Collapse` component.
+
+```vue
+<template>
+  <dimer-collapse :node="node">
+    <template slot-scope="collapse">
+      <details>
+        <summary>{{ collapse.title }}</summary>
+        <dimer-tree :node="collapse.body" />
+      </details>
+    </template>
+  </dimer-collapse>
+</template>
+
+<script>
+  export default {
+    props: ['node']
+  }
+</script>
+```
+
+### Dimer search
+Dimer has inbuilt search for documentation and instead of building the entire **Typeahead search** from hand, we recommend using the renderless `DimerSearch` component.
+
+```js
+import { Dimer, DimerSearch } from 'dimer-vue'
+Dimer.use(DimerSearch)
+```
+
+```vue
+<template>
+  <dimer-search :model="model">
+    <template slot-scope="searchScope">  
+      <input
+        type="search"
+        v-model="model.query"
+        @keyup="searchScope.triggerSearch"
+      />
+      
+      <div>
+       <div v-for="item in model.data">
+         <p> Results for {{ item.zone }} </p>
+         <li v-for="row in item.results">
+           <h2>
+             <component :is="searchScope.renderMark(row.title.marks)" />
+            </h2>
+            <p v-if="row.body.length">
+              <component :is="searchScope.renderMark(row.body[0].marks)" />
+            </p>
+         </li>
+        </div>
+      </div>
+    </template>
+  </dimer-search>
+</template>
+
+<script>
+  export default {
+    data () {
+      return {
+        model: {
+          query: '',
+          data: [
+            {
+              zone: 'faqs',
+              version: 'master',
+              results: [],
+            }
+          ]
+        }
+      }
+    }
+  }
+</script>
+```
+
+#### Events
+You can define listeners for following events.
+
+```vue
+<dimer-search
+  :model="model"
+  @onArrowUp="customHandler"
+  @onArrowDown="customHandler"
+  @onEnter="customHandler"
+  @onEscape="customHandler"
+>
+</dimer-search>
+```

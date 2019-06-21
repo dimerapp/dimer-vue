@@ -93,12 +93,12 @@ function content (DocComponent) {
  * @type {Object}
  */
 export default function routes (Layout, Doc) {
-  return {
+  return [{
     path: '/:zone/:version',
     component: wrapper(Layout),
     children: [{
       path: '/:zone/:version/:permalink',
       component: content(Doc)
     }]
-  }
+  }]
 }
