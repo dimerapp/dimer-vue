@@ -5,5 +5,5 @@
   "services": [
     "circleci"
   ],
-  "minNodeVersion": "8.0.0"
+  "minNodeVersion": "11.0.0"
 }
