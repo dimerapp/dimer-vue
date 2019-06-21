@@ -19,7 +19,7 @@ function freshInstance (renderers) {
   return DimerTree(renderers)
 }
 
-test.group('Dimer - Tree', () => {
+test.group('Dimer - Collapse', () => {
   test('process dimer content node to html', async (assert) => {
     const template = dedent`
     [collapse title="Hello world"]

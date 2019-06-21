@@ -6,5 +6,5 @@ module.exports = {
     fileName: 'dimer-vue[min].[format].js',
     format: ['cjs', 'umd', 'umd-min'],
     moduleName: 'dimerVue'
-  },
+  }
 }

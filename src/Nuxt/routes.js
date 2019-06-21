@@ -11,13 +11,13 @@ function handleError (error) {
   if (!error.response) {
     return {
       statusCode: error.status || 500,
-      message: error.message,
+      message: error.message
     }
   }
 
   return {
     statusCode: error.response.status,
-    message: error.response.status === 404 ? 'Route not found' : error.message,
+    message: error.response.status === 404 ? 'Route not found' : error.message
   }
 }
 
