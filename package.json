@@ -15,7 +15,7 @@
     "test": "bili tests/index -c bili.config-test.js && node japaFile.js",
     "posttest": "del-cli test",
     "prebuild": "del-cli dist",
-    "build": "bili",
+    "build": "bili --quiet",
     "lint": "standard",
     "release": "np",
     "version": "npm run build"
