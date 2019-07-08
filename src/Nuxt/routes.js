@@ -25,13 +25,15 @@ function handleError (error) {
  * A wrapper component to render to the layout
  */
 function wrapper (LayoutComponent) {
-  return {
+  return Object.assign({
     /**
      * Render the layout component
      */
     render (createElement) {
       return createElement(LayoutComponent, { props: { tree: this.tree } })
     },
+
+    watchQuery: ['__sse'],
 
     /**
      * Ensure that zone and version does exists. Also, in case of
@@ -44,7 +46,7 @@ function wrapper (LayoutComponent) {
       }
 
       if (!params.permalink && version.heroDoc) {
-        redirect(`/${params.zone}/${params.version}/${params.permalink}`)
+        redirect(`/${params.zone}/${params.version}/${version.heroDoc.permalink}`)
         return true
       }
 
@@ -62,17 +64,19 @@ function wrapper (LayoutComponent) {
         error(handleError(e))
       }
     }
-  }
+  }, LayoutComponent.pageOptions || {})
 }
 
 /**
  * Content component to render the document
  */
 function content (DocComponent) {
-  return {
+  return Object.assign({
     render (createElement) {
       return createElement(DocComponent, { props: { doc: this.doc } })
     },
+
+    watchQuery: ['__sse'],
 
     /**
      * Load the doc contents
@@ -85,7 +89,7 @@ function content (DocComponent) {
         error(handleError(e))
       }
     }
-  }
+  }, DocComponent.pageOptions || {})
 }
 
 /**
