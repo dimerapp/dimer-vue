@@ -262,8 +262,9 @@ import { DimerTree, Dimer, utils } from 'dimer'
 Dimer.use(DimerTree)
 
 Dimer.addRenderer(function (node, rerender, createElement) {
-  if (node.tag === 'a' && /^http(s)?/.test(node.url)) {
+  if (node.tag === 'a' && /^http(s)?/.test(node.props.href)) {
     node.props.target = '_blank'
+    node.props.rel = 'noreferrer'
 
     const attrs = utils.propsToAttrs(node.props)
     const children = node.children.map(rerender)
